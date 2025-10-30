@@ -1,0 +1,196 @@
+/**
+ * Less Mixins
+ * 常用的样式混合
+ */
+
+// ============================================
+// 清除浮动
+// ============================================
+.clearfix() {
+  &::before,
+  &::after {
+    content: '';
+    display: table;
+  }
+  &::after {
+    clear: both;
+  }
+}
+
+// ============================================
+// 文本溢出省略
+// ============================================
+.text-ellipsis() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-ellipsis-multi(@lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: @lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ============================================
+// Flex 布局
+// ============================================
+.flex-center() {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between() {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-start() {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-end() {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// ============================================
+// 尺寸设置
+// ============================================
+.size(@width; @height: @width) {
+  width: @width;
+  height: @height;
+}
+
+.square(@size) {
+  .size(@size, @size);
+}
+
+// ============================================
+// 定位
+// ============================================
+.absolute-center() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.absolute-full() {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+// ============================================
+// 边框圆角
+// ============================================
+.border-radius(@radius: 4px) {
+  border-radius: @radius;
+}
+
+// ============================================
+// 阴影
+// ============================================
+.box-shadow(@shadow: 0 2px 8px rgba(0, 0, 0, 0.15)) {
+  box-shadow: @shadow;
+}
+
+.text-shadow(@shadow: 0 1px 2px rgba(0, 0, 0, 0.1)) {
+  text-shadow: @shadow;
+}
+
+// ============================================
+// 渐变背景
+// ============================================
+.gradient-horizontal(@start-color; @end-color) {
+  background-image: linear-gradient(to right, @start-color, @end-color);
+}
+
+.gradient-vertical(@start-color; @end-color) {
+  background-image: linear-gradient(to bottom, @start-color, @end-color);
+}
+
+// ============================================
+// 过渡动画
+// ============================================
+.transition(@property: all; @duration: 0.3s; @timing: ease) {
+  transition: @property @duration @timing;
+}
+
+// ============================================
+// 滚动条样式
+// ============================================
+.scrollbar-style(@width: 6px; @track-color: #f0f0f0; @thumb-color: #bfbfbf) {
+  &::-webkit-scrollbar {
+    width: @width;
+    height: @width;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: @track-color;
+    border-radius: @width / 2;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: @thumb-color;
+    border-radius: @width / 2;
+    
+    &:hover {
+      background: darken(@thumb-color, 10%);
+    }
+  }
+}
+
+// ============================================
+// 禁用用户选择
+// ============================================
+.user-select-none() {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+// ============================================
+// 响应式断点
+// ============================================
+.responsive-xs(@rules) {
+  @media (max-width: 480px) {
+    @rules();
+  }
+}
+
+.responsive-sm(@rules) {
+  @media (min-width: 576px) {
+    @rules();
+  }
+}
+
+.responsive-md(@rules) {
+  @media (min-width: 768px) {
+    @rules();
+  }
+}
+
+.responsive-lg(@rules) {
+  @media (min-width: 992px) {
+    @rules();
+  }
+}
+
+.responsive-xl(@rules) {
+  @media (min-width: 1200px) {
+    @rules();
+  }
+}
+

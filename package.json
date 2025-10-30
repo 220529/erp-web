@@ -1,0 +1,32 @@
+{
+  "name": "erp-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ERP 微前端系统 - Monorepo",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "pnpm --parallel --filter \"./packages/*\" dev",
+    "dev:main": "pnpm --filter @erp/main dev",
+    "build": "pnpm --filter \"./packages/*\" build",
+    "build:main": "pnpm --filter @erp/main build",
+    "lint": "pnpm --filter \"./packages/*\" lint",
+    "typecheck": "pnpm --filter \"./packages/*\" typecheck"
+  },
+  "keywords": [
+    "erp",
+    "micro-frontend",
+    "monorepo",
+    "react",
+    "typescript"
+  ],
+  "author": "Your Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+

@@ -1,0 +1,290 @@
+/**
+ * 全局样式
+ * 应用于整个项目的基础样式
+ */
+
+@import './theme.less';
+@import './variables.less';
+@import './mixins.less';
+
+// ============================================
+// 重置样式
+// ============================================
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: @font-family;
+  font-size: @font-size-base;
+  color: @text-primary;
+  background-color: @bg-color-gray;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+// ============================================
+// 通用工具类
+// ============================================
+
+// Flex 布局
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  .flex-center();
+}
+
+.flex-between {
+  .flex-between();
+}
+
+.flex-start {
+  .flex-start();
+}
+
+.flex-end {
+  .flex-end();
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+// 文本对齐
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+// 文本溢出
+.text-ellipsis {
+  .text-ellipsis();
+}
+
+.text-ellipsis-2 {
+  .text-ellipsis-multi(2);
+}
+
+.text-ellipsis-3 {
+  .text-ellipsis-multi(3);
+}
+
+// 间距
+.m-0 { margin: 0 !important; }
+.mt-0 { margin-top: 0 !important; }
+.mr-0 { margin-right: 0 !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.ml-0 { margin-left: 0 !important; }
+
+.m-xs { margin: @margin-xs !important; }
+.mt-xs { margin-top: @margin-xs !important; }
+.mr-xs { margin-right: @margin-xs !important; }
+.mb-xs { margin-bottom: @margin-xs !important; }
+.ml-xs { margin-left: @margin-xs !important; }
+
+.m-sm { margin: @margin-sm !important; }
+.mt-sm { margin-top: @margin-sm !important; }
+.mr-sm { margin-right: @margin-sm !important; }
+.mb-sm { margin-bottom: @margin-sm !important; }
+.ml-sm { margin-left: @margin-sm !important; }
+
+.m-md { margin: @margin-md !important; }
+.mt-md { margin-top: @margin-md !important; }
+.mr-md { margin-right: @margin-md !important; }
+.mb-md { margin-bottom: @margin-md !important; }
+.ml-md { margin-left: @margin-md !important; }
+
+.m-lg { margin: @margin-lg !important; }
+.mt-lg { margin-top: @margin-lg !important; }
+.mr-lg { margin-right: @margin-lg !important; }
+.mb-lg { margin-bottom: @margin-lg !important; }
+.ml-lg { margin-left: @margin-lg !important; }
+
+.p-0 { padding: 0 !important; }
+.pt-0 { padding-top: 0 !important; }
+.pr-0 { padding-right: 0 !important; }
+.pb-0 { padding-bottom: 0 !important; }
+.pl-0 { padding-left: 0 !important; }
+
+.p-xs { padding: @padding-xs !important; }
+.pt-xs { padding-top: @padding-xs !important; }
+.pr-xs { padding-right: @padding-xs !important; }
+.pb-xs { padding-bottom: @padding-xs !important; }
+.pl-xs { padding-left: @padding-xs !important; }
+
+.p-sm { padding: @padding-sm !important; }
+.pt-sm { padding-top: @padding-sm !important; }
+.pr-sm { padding-right: @padding-sm !important; }
+.pb-sm { padding-bottom: @padding-sm !important; }
+.pl-sm { padding-left: @padding-sm !important; }
+
+.p-md { padding: @padding-md !important; }
+.pt-md { padding-top: @padding-md !important; }
+.pr-md { padding-right: @padding-md !important; }
+.pb-md { padding-bottom: @padding-md !important; }
+.pl-md { padding-left: @padding-md !important; }
+
+.p-lg { padding: @padding-lg !important; }
+.pt-lg { padding-top: @padding-lg !important; }
+.pr-lg { padding-right: @padding-lg !important; }
+.pb-lg { padding-bottom: @padding-lg !important; }
+.pl-lg { padding-left: @padding-lg !important; }
+
+// 宽高
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+// 圆角
+.rounded { border-radius: @border-radius-base; }
+.rounded-sm { border-radius: 2px; }
+.rounded-lg { border-radius: 8px; }
+.rounded-circle { border-radius: 50%; }
+
+// 阴影
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+.shadow-lg {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+// 光标
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+// 显示/隐藏
+.d-none {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-inline {
+  display: inline !important;
+}
+
+.d-inline-block {
+  display: inline-block !important;
+}
+
+// ============================================
+// 滚动条美化
+// ============================================
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bfbfbf;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #999;
+  }
+}
+
+// ============================================
+// 打印样式
+// ============================================
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+  }
+}
+
+// ============================================
+// 动画
+// ============================================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.slide-in-down {
+  animation: slideInDown 0.3s ease-out;
+}
+
+.slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+

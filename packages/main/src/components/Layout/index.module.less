@@ -1,0 +1,138 @@
+/**
+ * 主布局样式
+ */
+
+@import '@/styles/theme.less';
+@import '@/styles/variables.less';
+@import '@/styles/mixins.less';
+
+// ============================================
+// 主布局
+// ============================================
+.mainLayout {
+  min-height: 100vh;
+}
+
+// ============================================
+// 侧边栏
+// ============================================
+.sider {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 10;
+
+  :global(.ant-layout-sider-children) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.ant-menu) {
+    flex: 1;
+  }
+}
+
+// Logo 区域
+.logo {
+  height: 64px;
+  .flex-center();
+  background: rgba(0, 0, 0, 0.2);
+  margin-bottom: 8px;
+  .user-select-none();
+  cursor: pointer;
+  .transition();
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+.logoIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.logoText {
+  margin-left: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+// ============================================
+// 顶部导航
+// ============================================
+.header {
+  background: @bg-color;
+  padding: 0 @padding-lg;
+  .flex-between();
+  .box-shadow(0 2px 8px rgba(0, 0, 0, 0.06));
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  height: @header-height;
+  line-height: @header-height;
+}
+
+.headerLeft {
+  .flex-start();
+}
+
+.headerRight {
+  .flex-end();
+}
+
+.trigger {
+  font-size: 18px;
+  width: 64px;
+  height: 64px;
+  .transition();
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.025);
+  }
+}
+
+.userInfo {
+  padding: 0 16px;
+  cursor: pointer;
+  .transition();
+  border-radius: @border-radius-base;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.025);
+  }
+
+  span {
+    color: @text-primary;
+    font-size: 14px;
+  }
+}
+
+// ============================================
+// 内容区域
+// ============================================
+.content {
+  background: @bg-color-gray;
+  min-height: calc(100vh - @header-height);
+  overflow: auto;
+}
+
+// ============================================
+// 响应式
+// ============================================
+@media (max-width: @screen-md) {
+  .header {
+    padding: 0 @padding-md;
+  }
+
+  .trigger {
+    width: 48px;
+    height: 48px;
+  }
+
+  .logoText {
+    font-size: 16px;
+  }
+}
+

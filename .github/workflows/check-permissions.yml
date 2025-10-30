@@ -1,0 +1,38 @@
+name: Check Permissions
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-permissions:
+    name: 权限检查
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: 🔍 执行权限检查
+        run: bash .github/scripts/check-permissions.sh
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+      
+      - name: 📊 生成检查报告
+        if: always()
+        run: |
+          echo "## 权限检查报告" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**提交者:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PR编号:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # 统计变更
+          MAIN_CHANGES=$(git diff --name-only origin/main...HEAD | grep "^packages/main/" | wc -l || echo 0)
+          
+          echo "**变更统计:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 主应用文件: $MAIN_CHANGES" >> $GITHUB_STEP_SUMMARY
+
