@@ -73,3 +73,70 @@ export async function clearCache(flowKey?: string): Promise<void> {
   return request.post(url)
 }
 
+// ============================================
+// 业务流程操作封装
+// ============================================
+
+
+/**
+ * 从套餐创建订单
+ */
+export async function orderCreateFromProduct(params: {
+  customerId: number
+  productId: number
+  remark?: string
+}): Promise<FlowExecuteResult> {
+  return executeFlow('order_create_from_product', params)
+}
+
+/**
+ * 更新订单明细
+ */
+export async function orderMaterialUpdate(params: {
+  orderMaterialId: number
+  quantity: number
+  price: number
+}): Promise<FlowExecuteResult> {
+  return executeFlow('order_material_update', params)
+}
+
+/**
+ * 订单签约
+ */
+export async function orderSign(params: {
+  orderId: number
+  depositAmount: number
+  paymentMethod: string
+}): Promise<FlowExecuteResult> {
+  return executeFlow('order_sign', params)
+}
+
+/**
+ * 订单开工
+ */
+export async function orderStart(params: {
+  orderId: number
+  foremanId?: number
+}): Promise<FlowExecuteResult> {
+  return executeFlow('order_start', params)
+}
+
+/**
+ * 订单完工
+ */
+export async function orderComplete(params: {
+  orderId: number
+}): Promise<FlowExecuteResult> {
+  return executeFlow('order_complete', params)
+}
+
+/**
+ * 确认收款
+ */
+export async function paymentConfirm(params: {
+  paymentId: number
+  paidAt?: string
+}): Promise<FlowExecuteResult> {
+  return executeFlow('payment_confirm', params)
+}
+

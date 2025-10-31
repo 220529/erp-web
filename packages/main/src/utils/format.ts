@@ -64,3 +64,13 @@ export function formatNumber(num: number): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
+/**
+ * 格式化金额
+ * @param amount 金额
+ * @param precision 精度，默认2位小数
+ */
+export function formatMoney(amount: number, precision: number = 2): string {
+  if (amount === null || amount === undefined) return '¥0.00'
+  return `¥${Number(amount).toFixed(precision).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+}
+

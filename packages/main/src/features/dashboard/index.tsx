@@ -8,38 +8,56 @@ export default function Dashboard() {
     <div className={styles.dashboard}>
       <h1 className={styles.title}>ERP 系统 - 工作台</h1>
       
-      <Row gutter={16}>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="客户总数"
-              value={0}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#3f8600' }}
-            />
-          </Card>
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={12} md={6}>
+          <Link to="/customer">
+            <Card hoverable>
+              <Statistic
+                title="客户总数"
+                value={0}
+                prefix={<UserOutlined />}
+                valueStyle={{ color: '#3f8600' }}
+              />
+            </Card>
+          </Link>
         </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="订单总数"
-              value={0}
-              prefix={<ShoppingOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
+        <Col xs={24} sm={12} md={6}>
+          <Link to="/order">
+            <Card hoverable>
+              <Statistic
+                title="订单总数"
+                value={0}
+                prefix={<ShoppingOutlined />}
+                valueStyle={{ color: '#1890ff' }}
+              />
+            </Card>
+          </Link>
         </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="本月收入"
-              value={0}
-              prefix={<DollarOutlined />}
-              precision={2}
-              valueStyle={{ color: '#cf1322' }}
-              suffix="元"
-            />
-          </Card>
+        <Col xs={24} sm={12} md={6}>
+          <Link to="/project">
+            <Card hoverable>
+              <Statistic
+                title="项目总数"
+                value={0}
+                prefix={<CodeOutlined />}
+                valueStyle={{ color: '#722ed1' }}
+              />
+            </Card>
+          </Link>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Link to="/finance">
+            <Card hoverable>
+              <Statistic
+                title="本月收入"
+                value={0}
+                prefix={<DollarOutlined />}
+                precision={2}
+                valueStyle={{ color: '#cf1322' }}
+                suffix="元"
+              />
+            </Card>
+          </Link>
         </Col>
       </Row>
 
@@ -61,10 +79,25 @@ export default function Dashboard() {
         </div>
         <div className={styles.quickStart}>
           <h3>快速开始：</h3>
-          <Space style={{ marginTop: 12 }}>
-            <Link to="/data/codeflow">
-              <Button type="primary" icon={<CodeOutlined />}>
-                代码流程管理
+          <Space style={{ marginTop: 12 }} wrap>
+            <Link to="/customer">
+              <Button type="primary" icon={<UserOutlined />}>
+                客户管理
+              </Button>
+            </Link>
+            <Link to="/order">
+              <Button icon={<ShoppingOutlined />}>
+                订单管理
+              </Button>
+            </Link>
+            <Link to="/project">
+              <Button icon={<CodeOutlined />}>
+                项目管理
+              </Button>
+            </Link>
+            <Link to="/material">
+              <Button icon={<CodeOutlined />}>
+                物料管理
               </Button>
             </Link>
           </Space>

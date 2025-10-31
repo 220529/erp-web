@@ -3,4 +3,5 @@
  */
 
 export * from './Layout'
+export { default as ListPage } from './ListPage'
 

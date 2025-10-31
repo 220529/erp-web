@@ -3,7 +3,7 @@
  * 包含顶部导航、侧边菜单、内容区域
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Layout, Menu, Avatar, Dropdown, Space, Button, message, Modal } from 'antd'
 import {
   MenuFoldOutlined,
@@ -89,7 +89,7 @@ export default function MainLayout() {
   const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
     switch (key) {
       case 'profile':
-        message.info('个人中心功能开发中...')
+        navigate('/profile')
         break
       case 'settings':
         message.info('系统设置功能开发中...')

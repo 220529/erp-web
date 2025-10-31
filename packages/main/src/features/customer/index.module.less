@@ -1,0 +1,31 @@
+@import '@/styles/theme.less';
+
+.customerList {
+  :global {
+    .ant-card {
+      border-radius: @border-radius-base;
+    }
+
+    .ant-form-inline .ant-form-item {
+      margin-right: 16px;
+      margin-bottom: 8px;
+    }
+  }
+}
+
+.detailContent {
+  padding: 16px 0;
+
+  .detailItem {
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.8;
+
+    .label {
+      font-weight: 500;
+      color: @text-color-secondary;
+      min-width: 80px;
+      flex-shrink: 0;
+    }
+  }
+}

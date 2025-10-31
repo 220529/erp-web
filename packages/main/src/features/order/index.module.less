@@ -1,0 +1,41 @@
+@import '@/styles/theme.less';
+
+.orderList {
+  :global {
+    .ant-card {
+      border-radius: @border-radius-base;
+    }
+
+    .ant-form-inline .ant-form-item {
+      margin-right: 16px;
+      margin-bottom: 8px;
+    }
+
+    .ant-statistic-title {
+      font-size: 14px;
+      color: @text-color-secondary;
+    }
+
+    .ant-statistic-content {
+      font-size: 24px;
+      font-weight: 500;
+    }
+  }
+}
+
+.detailContent {
+  padding: 16px 0;
+
+  .detailItem {
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.8;
+
+    .label {
+      font-weight: 500;
+      color: @text-color-secondary;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+  }
+}

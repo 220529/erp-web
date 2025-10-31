@@ -10,7 +10,6 @@ import {
   DatabaseOutlined,
   UserOutlined,
   ShoppingOutlined,
-  FileTextOutlined,
   BarChartOutlined,
   SettingOutlined,
 } from '@ant-design/icons'
@@ -34,10 +33,45 @@ export const menuConfig: MenuItem[] = [
     path: '/',
   },
   {
-    key: '/data',
-    label: '数据管理',
+    key: '/customer',
+    label: '客户管理',
+    icon: <UserOutlined />,
+    path: '/customer',
+  },
+  {
+    key: '/product',
+    label: '套餐管理',
     icon: <DatabaseOutlined />,
+    path: '/product',
+  },
+  {
+    key: '/order',
+    label: '订单管理',
+    icon: <ShoppingOutlined />,
+    path: '/order',
+  },
+  {
+    key: '/finance',
+    label: '收款管理',
+    icon: <BarChartOutlined />,
+    path: '/finance',
+  },
+  {
+    key: '/material',
+    label: '物料管理',
+    icon: <DatabaseOutlined />,
+    path: '/material',
+  },
+  {
+    key: '/data',
+    label: '基础数据',
+    icon: <SettingOutlined />,
     children: [
+      {
+        key: '/data/dict',
+        label: '字典管理',
+        path: '/data/dict',
+      },
       {
         key: '/data/codeflow',
         label: '代码流程',

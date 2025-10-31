@@ -26,7 +26,16 @@ export interface UserInfo {
   id: number
   username: string
   name: string
-  role?: string
+  mobile: string
+  email?: string
+  avatar?: string
+  role: string
+  status: number
+  companyId?: number
+  departmentId?: number
+  remark?: string
+  createdAt: string
+  updatedAt: string
 }
 
 // ============================================
@@ -51,7 +60,7 @@ export async function logout(): Promise<void> {
  * 获取当前用户信息
  */
 export async function getUserInfo(): Promise<UserInfo> {
-  return request.get<UserInfo>('/api/auth/user') as unknown as Promise<UserInfo>
+  return request.get<UserInfo>('/api/auth/profile') as unknown as Promise<UserInfo>
 }
 
 /**
