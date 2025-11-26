@@ -86,7 +86,7 @@ export interface QueryParams {
  * 获取产品列表
  */
 export async function listProducts(params?: QueryParams): Promise<PageResult<Product>> {
-  const data = await request.get<any>('/api/products', { params })
+  const data = await request.get<any>('/api/products', { params }) as any
   // 确保返回正确的分页格式
   if (data && typeof data === 'object') {
     return {
