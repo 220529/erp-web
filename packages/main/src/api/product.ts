@@ -132,7 +132,7 @@ export async function deleteProduct(id: number): Promise<void> {
  * 获取产品物料清单
  */
 export async function getProductMaterials(productId: number): Promise<ProductMaterial[]> {
-  const data = await request.get<any>(`/api/products/${productId}/materials`)
+  const data = await request.get<any>(`/api/products/${productId}/materials`) as any
   console.log(`📡 API返回的产品${productId}物料清单原始数据:`, data)
   
   // 后端返回的数据结构: { product, materials, summary }
