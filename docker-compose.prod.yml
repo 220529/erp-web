@@ -2,7 +2,7 @@
 
 services:
   erp-web:
-    image: ${ACR_REGISTRY}/${ACR_NAMESPACE}/erp-web:{{IMAGE_TAG}}
+    image: ${ACR_REGISTRY}/${ACR_NAMESPACE}/erp-web:${IMAGE_TAG:-latest}
     container_name: erp-web
     restart: unless-stopped
     # 不对外暴露端口，由 nginx-gateway 转发

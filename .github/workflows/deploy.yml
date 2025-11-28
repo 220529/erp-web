@@ -38,23 +38,18 @@ jobs:
                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/erp-web:latest
           docker push ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/erp-web:latest
 
-      # 4. 准备部署文件
-      - name: Prepare deployment files
+      # 4. 创建 .env.prod 文件（ACR 变量供 docker-compose 使用）
+      - name: Create .env.prod
         env:
           IMAGE_TAG: ${{ github.sha }}
-        run: |
-          # 替换 docker-compose.prod.yml 中的镜像标签
-          sed -i "s|{{IMAGE_TAG}}|$IMAGE_TAG|g" docker-compose.prod.yml
-
-      # 5. 创建 .env.prod 文件（ACR 变量供 docker-compose 使用）
-      - name: Create .env.prod
         run: |
           cat > .env.prod << EOF
           ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
           ACR_NAMESPACE=${{ secrets.ACR_NAMESPACE }}
+          IMAGE_TAG=$IMAGE_TAG
           EOF
 
-      # 6. 上传配置文件到服务器
+      # 5. 上传配置文件到服务器
       - name: Upload files to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -64,7 +59,7 @@ jobs:
           source: "docker-compose.prod.yml,.env.prod"
           target: /app/erp-web/
 
-      # 7. SSH 到服务器部署
+      # 6. SSH 到服务器部署
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
