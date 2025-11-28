@@ -46,17 +46,25 @@ jobs:
           # 替换 docker-compose.prod.yml 中的镜像标签
           sed -i "s|{{IMAGE_TAG}}|$IMAGE_TAG|g" docker-compose.prod.yml
 
-      # 5. 上传配置文件到服务器
+      # 5. 创建 .env.prod 文件（ACR 变量供 docker-compose 使用）
+      - name: Create .env.prod
+        run: |
+          cat > .env.prod << EOF
+          ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
+          ACR_NAMESPACE=${{ secrets.ACR_NAMESPACE }}
+          EOF
+
+      # 6. 上传配置文件到服务器
       - name: Upload files to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          source: "docker-compose.prod.yml"
+          source: "docker-compose.prod.yml,.env.prod"
           target: /app/erp-web/
 
-      # 6. SSH 到服务器部署
+      # 7. SSH 到服务器部署
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -66,28 +74,24 @@ jobs:
           script: |
             cd /app/erp-web
 
-            # 设置环境变量
-            export ACR_REGISTRY="${{ secrets.ACR_REGISTRY }}"
-            export ACR_NAMESPACE="${{ secrets.ACR_NAMESPACE }}"
-
             # 登录 ACR
             docker login --username=${{ secrets.ACR_USERNAME }} \
                         --password=${{ secrets.ACR_PASSWORD }} \
                         ${{ secrets.ACR_REGISTRY }}
 
             # 拉取最新镜像
-            docker compose -f docker-compose.prod.yml pull
+            docker compose --env-file .env.prod -f docker-compose.prod.yml pull
 
             # 停止旧容器
-            docker compose -f docker-compose.prod.yml down || true
+            docker compose --env-file .env.prod -f docker-compose.prod.yml down || true
 
             # 启动新容器
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
 
             # 等待容器启动
             sleep 5
 
             # 查看状态
-            docker compose -f docker-compose.prod.yml ps
+            docker compose --env-file .env.prod -f docker-compose.prod.yml ps
 
             echo "✅ erp-web 部署完成!"
