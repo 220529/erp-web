@@ -16,77 +16,116 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. 登录阿里云容器镜像服务
-      - name: Login to Aliyun Container Registry
-        uses: aliyun/acr-login@v1
-        with:
-          login-server: https://${{ secrets.ACR_REGISTRY }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
-
-      # 3. 构建并推送 Docker 镜像
-      - name: Build and push Docker image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          echo "Building image with tag: $IMAGE_TAG"
-          docker build -t ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/erp-web:$IMAGE_TAG .
-          docker push ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/erp-web:$IMAGE_TAG
-
-          # 同时推送 latest 标签
-          docker tag ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/erp-web:$IMAGE_TAG \
-                     ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/erp-web:latest
-          docker push ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/erp-web:latest
-
-      # 4. 创建 .env.prod 文件（ACR 变量供 docker-compose 使用）
+      # 2. 创建 .env.prod 文件
       - name: Create .env.prod
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           cat > .env.prod << EOF
-          ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
+          ACR_REGISTRY=${{ secrets.ACR_REGISTRY_VPC }}
           ACR_NAMESPACE=${{ secrets.ACR_NAMESPACE }}
           IMAGE_TAG=$IMAGE_TAG
           EOF
 
-      # 5. 上传配置文件到服务器
-      - name: Upload files to server
+      # 3. 上传代码到服务器
+      - name: Upload code to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          source: "docker-compose.prod.yml,.env.prod"
-          target: /app/erp-web/
+          source: "."
+          target: /app/erp-web-build/
+          rm: true
 
-      # 6. SSH 到服务器部署
-      - name: Deploy on server
+      # 4. SSH 到服务器构建并部署
+      - name: Build and deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
+          command_timeout: 30m
           script: |
-            cd /app/erp-web
-
-            # 登录 ACR
+            set -e  # 遇到错误立即退出
+            
+            echo "========================================="
+            echo "开始部署 erp-web"
+            echo "========================================="
+            
+            cd /app/erp-web-build
+            
+            # 登录 ACR (使用内网地址)
+            echo "🔐 登录 ACR..."
             docker login --username=${{ secrets.ACR_USERNAME }} \
                         --password=${{ secrets.ACR_PASSWORD }} \
-                        ${{ secrets.ACR_REGISTRY }}
-
+                        ${{ secrets.ACR_REGISTRY_VPC }}
+            
+            # 设置镜像标签
+            IMAGE_TAG=${{ github.sha }}
+            FULL_IMAGE_NAME=${{ secrets.ACR_REGISTRY_VPC }}/${{ secrets.ACR_NAMESPACE }}/erp-web:$IMAGE_TAG
+            echo "📦 镜像标签: $IMAGE_TAG"
+            echo "📦 完整镜像名: $FULL_IMAGE_NAME"
+            
+            # 构建镜像
+            echo "🔨 开始构建镜像..."
+            docker build --progress=plain -t $FULL_IMAGE_NAME . 2>&1 | tee build.log
+            
+            if [ $? -eq 0 ]; then
+                echo "✅ 镜像构建成功"
+            else
+                echo "❌ 镜像构建失败，查看日志文件 build.log"
+                tail -n 100 build.log
+                exit 1
+            fi
+            
+            # 推送镜像到 ACR
+            echo "📤 推送镜像到 ACR..."
+            docker push $FULL_IMAGE_NAME
+            
+            # 同时推送 latest 标签
+            echo "🏷️  标记并推送 latest 标签..."
+            docker tag $FULL_IMAGE_NAME \
+                       ${{ secrets.ACR_REGISTRY_VPC }}/${{ secrets.ACR_NAMESPACE }}/erp-web:latest
+            docker push ${{ secrets.ACR_REGISTRY_VPC }}/${{ secrets.ACR_NAMESPACE }}/erp-web:latest
+            
+            # 复制配置文件到部署目录
+            echo "📋 复制配置文件..."
+            cp docker-compose.prod.yml /app/erp-web/
+            cp .env.prod /app/erp-web/
+            
+            # 部署
+            echo "🚀 开始部署..."
+            cd /app/erp-web
+            
             # 拉取最新镜像
+            echo "📥 拉取最新镜像..."
             docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-
+            
             # 停止旧容器
+            echo "⏹️  停止旧容器..."
             docker compose --env-file .env.prod -f docker-compose.prod.yml down || true
-
+            
             # 启动新容器
+            echo "▶️  启动新容器..."
             docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
-
+            
             # 等待容器启动
-            sleep 5
-
+            echo "⏳ 等待容器启动..."
+            sleep 10
+            
             # 查看状态
+            echo "📊 查看容器状态..."
             docker compose --env-file .env.prod -f docker-compose.prod.yml ps
-
+            
+            # 查看容器日志（最后20行）
+            echo "📜 查看容器日志..."
+            docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail=20
+            
+            # 清理构建目录的悬空镜像
+            echo "🧹 清理悬空镜像..."
+            docker image prune -f || true
+            
+            echo "========================================="
             echo "✅ erp-web 部署完成!"
+            echo "========================================="
