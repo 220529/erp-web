@@ -58,7 +58,7 @@ EXPOSE 80
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+  CMD curl -f http://localhost/ || exit 1
 
 # 启动 Nginx
 CMD ["nginx", "-g", "daemon off;"]
