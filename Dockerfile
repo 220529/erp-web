@@ -25,6 +25,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# 安装 pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 # 从依赖阶段复制 node_modules
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages ./packages
