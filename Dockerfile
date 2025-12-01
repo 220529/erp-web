@@ -8,6 +8,9 @@ WORKDIR /app
 # 安装 pnpm (使用 corepack 更高效)
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
+# 配置国内镜像源
+RUN pnpm config set registry https://registry.npmmirror.com
+
 # 复制依赖定义文件
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages ./packages
