@@ -12,6 +12,7 @@ import { ProductList } from '@/features/product'
 import ProductMaterialsManagement from '@/features/product/MaterialsManagement'
 import { FinanceList } from '@/features/finance'
 import { DictList } from '@/features/dict'
+import { FileList } from '@/features/file'
 import { Login } from '@/features/auth'
 
 export const router = createBrowserRouter(
@@ -67,6 +68,10 @@ export const router = createBrowserRouter(
         {
           path: 'data/codeflow',
           element: <CodeFlowList />,
+        },
+        {
+          path: 'data/file',
+          element: <FileList />,
         },
         {
           path: 'system',

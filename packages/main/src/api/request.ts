@@ -85,8 +85,9 @@ request.interceptors.response.use(
           break
         case 401:
           message.error('未授权，请重新登录')
-          // 可以在这里跳转到登录页
-          // window.location.href = '/login'
+          // 清除 token 并跳转登录页
+          localStorage.removeItem('token')
+          window.location.href = '/login'
           break
         case 403:
           message.error('拒绝访问')

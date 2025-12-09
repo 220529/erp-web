@@ -12,6 +12,8 @@ import {
   ShoppingOutlined,
   BarChartOutlined,
   SettingOutlined,
+  BookOutlined,
+  FolderOutlined,
 } from '@ant-design/icons'
 
 export interface MenuItem {
@@ -70,6 +72,7 @@ export const menuConfig: MenuItem[] = [
       {
         key: '/data/dict',
         label: '字典管理',
+        icon: <BookOutlined />,
         path: '/data/dict',
       },
       {
@@ -77,6 +80,12 @@ export const menuConfig: MenuItem[] = [
         label: '代码流程',
         icon: <CodeOutlined />,
         path: '/data/codeflow',
+      },
+      {
+        key: '/data/file',
+        label: '文件管理',
+        icon: <FolderOutlined />,
+        path: '/data/file',
       },
     ],
   },
