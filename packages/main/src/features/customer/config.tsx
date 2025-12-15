@@ -2,7 +2,7 @@ import { Tag, Space, Button, Popconfirm } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { formatDateTime } from '@/utils/format'
 import type { Customer } from '@/features/customer/types'
-import { CustomerStatus } from '@/constants/enums'
+import { CustomerStatus, EnumLabels, EnumColors } from '@/constants/enums'
 
 /**
  * 客户列表列定义
@@ -10,7 +10,7 @@ import { CustomerStatus } from '@/constants/enums'
 export const customerColumns = (
   onEdit: (record: Customer) => void,
   onDelete: (id: number) => void,
-  onViewDetail: (record: Customer) => void
+  onViewDetail: (record: Customer) => void,
 ): ColumnsType<Customer> => [
   {
     title: '客户姓名',
@@ -43,16 +43,11 @@ export const customerColumns = (
     dataIndex: 'status',
     key: 'status',
     width: 100,
-    render: (status: CustomerStatus) => {
-      const statusMap: Record<string, { text: string; color: string }> = {
-        [CustomerStatus.LEAD]: { text: '线索', color: 'default' },
-        [CustomerStatus.MEASURED]: { text: '已量房', color: 'blue' },
-        [CustomerStatus.QUOTED]: { text: '已报价', color: 'orange' },
-        [CustomerStatus.SIGNED]: { text: '已签约', color: 'green' },
-        [CustomerStatus.COMPLETED]: { text: '已完工', color: 'success' },
-      }
-      return <Tag color={statusMap[status]?.color}>{statusMap[status]?.text || status}</Tag>
-    },
+    render: (status: CustomerStatus) => (
+      <Tag color={EnumColors.CustomerStatus[status]}>
+        {EnumLabels.CustomerStatus[status] || status}
+      </Tag>
+    ),
   },
   {
     title: '负责销售',

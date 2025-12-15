@@ -59,3 +59,24 @@ export async function updateCustomer(data: UpdateCustomerDto): Promise<Customer>
 export async function deleteCustomer(id: number): Promise<void> {
   return request.delete(`/api/customers/${id}`) as unknown as Promise<void>
 }
+
+/**
+ * 导出客户列表
+ */
+export async function exportCustomers(params?: QueryParams): Promise<void> {
+  const response = await request.get('/api/customers/export', {
+    params,
+    responseType: 'blob',
+  })
+
+  // 从响应头获取文件名，或使用默认名
+  const blob = response as unknown as Blob
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `客户列表_${new Date().toISOString().slice(0, 10)}.xlsx`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+}

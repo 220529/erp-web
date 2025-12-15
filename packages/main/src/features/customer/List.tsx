@@ -12,7 +12,7 @@ import {
   Col,
   Table,
 } from 'antd'
-import { PlusOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { ListPage } from '@/components'
 import { customerApi, productApi, codeflowApi } from '@/api'
@@ -46,6 +46,7 @@ export default function CustomerList() {
   const [productModalOpen, setProductModalOpen] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [productsLoading, setProductsLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const [form] = Form.useForm()
   const [orderForm] = Form.useForm()
@@ -193,8 +194,8 @@ export default function CustomerList() {
             <Input placeholder="客户姓名/电话" allowClear />
           </Form.Item>
           <Form.Item name="stage">
-            <Select placeholder="客户阶段" allowClear style={{ width: 120 }}>
-              <Option value={CustomerStatus.LEAD}>线索</Option>
+            <Select placeholder="客户状态" allowClear style={{ width: 120 }}>
+              <Option value={CustomerStatus.NEW}>新客户</Option>
               <Option value={CustomerStatus.MEASURED}>已量房</Option>
               <Option value={CustomerStatus.QUOTED}>已报价</Option>
               <Option value={CustomerStatus.SIGNED}>已签约</Option>
@@ -215,9 +216,28 @@ export default function CustomerList() {
 
         {/* 操作按钮 */}
         <div style={{ marginBottom: 16 }}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-            新增客户
-          </Button>
+          <Space>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+              新增客户
+            </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              loading={exporting}
+              onClick={async () => {
+                try {
+                  setExporting(true)
+                  await customerApi.exportCustomers(searchParams)
+                  message.success('导出成功')
+                } catch (error: any) {
+                  message.error(error.message || '导出失败')
+                } finally {
+                  setExporting(false)
+                }
+              }}
+            >
+              导出
+            </Button>
+          </Space>
         </div>
 
         {/* 列表 */}
@@ -298,7 +318,7 @@ export default function CustomerList() {
         open={detailModalOpen}
         onCancel={() => setDetailModalOpen(false)}
         footer={[
-          currentCustomer?.status === CustomerStatus.LEAD && (
+          currentCustomer?.status === CustomerStatus.NEW && (
             <Button
               key="create-order"
               type="primary"

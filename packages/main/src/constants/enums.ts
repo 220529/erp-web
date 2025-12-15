@@ -17,7 +17,7 @@ export enum UserRole {
  * 客户状态枚举
  */
 export enum CustomerStatus {
-  LEAD = 'lead', // 线索
+  NEW = 'new', // 新客户
   MEASURED = 'measured', // 已量房
   QUOTED = 'quoted', // 已报价
   SIGNED = 'signed', // 已签约
@@ -121,7 +121,7 @@ export const EnumLabels = {
     [UserRole.FINANCE]: '财务',
   },
   CustomerStatus: {
-    [CustomerStatus.LEAD]: '线索',
+    [CustomerStatus.NEW]: '新客户',
     [CustomerStatus.MEASURED]: '已量房',
     [CustomerStatus.QUOTED]: '已报价',
     [CustomerStatus.SIGNED]: '已签约',
@@ -183,11 +183,11 @@ export const EnumLabels = {
  */
 export const EnumColors = {
   CustomerStatus: {
-    [CustomerStatus.LEAD]: 'default',
-    [CustomerStatus.MEASURED]: 'processing',
-    [CustomerStatus.QUOTED]: 'warning',
-    [CustomerStatus.SIGNED]: 'success',
-    [CustomerStatus.COMPLETED]: 'success',
+    [CustomerStatus.NEW]: 'blue',
+    [CustomerStatus.MEASURED]: 'cyan',
+    [CustomerStatus.QUOTED]: 'orange',
+    [CustomerStatus.SIGNED]: 'green',
+    [CustomerStatus.COMPLETED]: 'purple',
   },
   OrderStatus: {
     [OrderStatus.DRAFT]: 'default',
