@@ -50,7 +50,7 @@ export default function MaterialList() {
       setData(result.list || [])
       setTotal(result.total || 0)
     } catch (error: any) {
-      message.error(error.message || '加载失败')
+      message.error(error.message || '加载失败...')
     } finally {
       setLoading(false)
     }
