@@ -56,9 +56,9 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 # 暴露端口
 EXPOSE 80
 
-# 健康检查
+# 健康检查 (使用 wget，alpine 自带)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
 
 # 启动 Nginx
 CMD ["nginx", "-g", "daemon off;"]
