@@ -43,3 +43,6 @@ export * as constantsApi from './constants'
 // 导出定时任务相关 API
 export * as schedulerApi from './scheduler'
 
+// 导出操作日志相关 API
+export * as logApi from './log'
+

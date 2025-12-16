@@ -3,7 +3,7 @@ import { MainLayout } from '@/components'
 import AuthGuard from '@/components/AuthGuard'
 import Dashboard from '@/features/dashboard'
 import { CodeFlowList } from '@/features/codeflow'
-import SystemIndex, { Organization, RoleList } from '@/features/system'
+import SystemIndex, { Organization, RoleList, LogList } from '@/features/system'
 import ProfileIndex from '@/features/profile'
 import { CustomerList } from '@/features/customer'
 import { OrderList, OrderDetail } from '@/features/order'
@@ -89,6 +89,10 @@ export const router = createBrowserRouter(
         {
           path: 'system/role',
           element: <RoleList />,
+        },
+        {
+          path: 'system/log',
+          element: <LogList />,
         },
         {
           path: 'profile',
