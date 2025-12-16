@@ -11,18 +11,23 @@
 ### 调整内容
 
 #### ❌ 删除了后端自动生成的字段
+
 - **物料编码（code）** - 由后端根据物料类别自动生成（ZC/FC/RG前缀）
 - 前端创建物料时**不再传递** `code` 字段
 
 #### ✅ 修正了枚举值
+
 **物料类别从错误值改为正确值：**
+
 - ~~mainMaterial~~ → `main` （主材）
 - ~~craft~~ → `auxiliary` （辅材）
-- ~~baseMaterial~~ → `labor` （人工） 
+- ~~baseMaterial~~ → `labor` （人工）
 - ~~service~~ → 删除
 
 #### ✅ 优化了表单字段
+
 **创建/编辑物料表单字段：**
+
 - 物料名称（name）- 必填
 - 物料类别（category）- 可选：main/auxiliary/labor（下拉选择）
 - 品牌（brand）- 可选（自由输入）
@@ -32,24 +37,27 @@
 - 备注（remark）- 可选（文本域）
 
 **删除了不存在的字段：**
+
 - ~~库存（stock）~~
 - ~~供应商（supplierName）~~
 
 #### ✅ 更新了类型定义
+
 ```typescript
 // packages/main/src/features/material/types.ts
 export interface CreateMaterialDto {
-  name: string        // 必填：物料名称
-  category?: string   // 可选：物料类别
-  brand?: string      // 可选：品牌
-  spec?: string       // 可选：规格型号
-  unit?: string       // 可选：单位
-  price?: number      // 可选：单价
-  remark?: string     // 可选：备注
+  name: string; // 必填：物料名称
+  category?: string; // 可选：物料类别
+  brand?: string; // 可选：品牌
+  spec?: string; // 可选：规格型号
+  unit?: string; // 可选：单位
+  price?: number; // 可选：单价
+  remark?: string; // 可选：备注
 }
 ```
 
 **不再包含后端自动生成的字段：**
+
 - ~~code~~（物料编码）
 
 ---
@@ -61,6 +69,7 @@ export interface CreateMaterialDto {
 **文件**：`packages/main/src/api/constants.ts`
 
 **可用接口**：
+
 ```typescript
 // 获取所有常量（一次性）
 getAllConstants(): Promise<Record<string, ConstantOption[]>>
@@ -79,23 +88,26 @@ getUnits(): Promise<ConstantOption[]>               // 单位列表（✨ 新增
 ```
 
 **常量选项格式**：
+
 ```typescript
 interface ConstantOption {
-  label: string       // 显示文本（如："平方米"）
-  value: string       // 实际值（如："m2"）
-  description?: string // 可选描述
+  label: string; // 显示文本（如："平方米"）
+  value: string; // 实际值（如："m2"）
+  description?: string; // 可选描述
 }
 ```
 
 ### ✅ 单位字段改为接口获取
 
 **物料管理模块**：
+
 - 单位字段从**自由输入**改为**下拉选择**
 - 启动时自动调用 `constantsApi.getUnits()` 获取单位列表
 - 支持搜索过滤（`showSearch`）
 - 支持清空选择（`allowClear`）
 
 **使用示例**：
+
 ```typescript
 // 组件中
 const [units, setUnits] = useState<ConstantOption[]>([])
@@ -105,8 +117,8 @@ const result = await constantsApi.getUnits()
 setUnits(result)
 
 // 渲染下拉框
-<Select 
-  options={units.map(u => ({ 
+<Select
+  options={units.map(u => ({
     label: u.label,   // 显示："平方米"
     value: u.value    // 值："m2"
   }))}
@@ -124,42 +136,42 @@ setUnits(result)
 
 // ✅ 物料类别
 export enum MaterialCategory {
-  MAIN = 'main',         // 主材
-  AUXILIARY = 'auxiliary', // 辅材
-  LABOR = 'labor',       // 人工
+  MAIN = "main", // 主材
+  AUXILIARY = "auxiliary", // 辅材
+  LABOR = "labor", // 人工
 }
 
 // ✅ 客户状态
 export enum CustomerStatus {
-  LEAD = 'lead',         // 线索
-  MEASURED = 'measured', // 已量房（初版不用）
-  QUOTED = 'quoted',     // 已报价
-  SIGNED = 'signed',     // 已签约
-  COMPLETED = 'completed', // 已完工
+  NEW = "new", // 新客户
+  MEASURED = "measured", // 已量房（初版不用）
+  QUOTED = "quoted", // 已报价
+  SIGNED = "signed", // 已签约
+  COMPLETED = "completed", // 已完工
 }
 
 // ✅ 订单状态
 export enum OrderStatus {
-  DRAFT = 'draft',       // 草稿
-  SIGNED = 'signed',     // 已签约
-  IN_PROGRESS = 'in_progress', // 施工中
-  COMPLETED = 'completed', // 已完工
-  CANCELLED = 'cancelled', // 已取消
+  DRAFT = "draft", // 草稿
+  SIGNED = "signed", // 已签约
+  IN_PROGRESS = "in_progress", // 施工中
+  COMPLETED = "completed", // 已完工
+  CANCELLED = "cancelled", // 已取消
 }
 
 // ✅ 收款类型
 export enum PaymentType {
-  DEPOSIT = 'deposit',   // 定金
-  CONTRACT = 'contract', // 合同款
-  DESIGN_FEE = 'design_fee', // 设计费
-  ADDITION = 'addition', // 增项款
+  DEPOSIT = "deposit", // 定金
+  CONTRACT = "contract", // 合同款
+  DESIGN_FEE = "design_fee", // 设计费
+  ADDITION = "addition", // 增项款
 }
 
 // ✅ 收款状态
 export enum PaymentStatus {
-  PENDING = 'pending',   // 待确认
-  CONFIRMED = 'confirmed', // 已确认
-  CANCELLED = 'cancelled', // 已取消
+  PENDING = "pending", // 待确认
+  CONFIRMED = "confirmed", // 已确认
+  CANCELLED = "cancelled", // 已取消
 }
 ```
 
@@ -168,18 +180,24 @@ export enum PaymentStatus {
 ## 3️⃣ 其他模块验证
 
 ### 客户管理（Customers）
+
 ✅ **字段正确**：
-- 不传递 `status`（后端自动设置为 `lead`）
+
+- 不传递 `status`（后端自动设置为 `new`）
 - 只传递：name, mobile, address, area, remark
 
 ### 订单管理（Orders）
+
 ✅ **字段正确**：
+
 - 不传递 `orderNo`（后端自动生成 DD 前缀）
 - 不传递 `paidAmount`（初始为0，由收款确认后累加）
 - 订单创建通过业务流程 `order_create_from_product`
 
 ### 收款管理（Payments）
+
 ✅ **字段正确**：
+
 - 不传递 `paymentNo`（后端自动生成 SK 前缀）
 - 不传递 `status`（后端自动设置为 `pending`）
 
@@ -190,6 +208,7 @@ export enum PaymentStatus {
 ### ⚠️ 搜索表单可以使用编码字段
 
 以下字段在**搜索表单**中可以使用（用于过滤）：
+
 - `code` - 物料编码
 - `orderNo` - 订单编号
 - `paymentNo` - 收款单号
@@ -200,20 +219,21 @@ export enum PaymentStatus {
 
 ## 📊 编码规则对照表
 
-| 模块 | 字段 | 前缀 | 示例 | 前端是否传递 |
-|------|------|------|------|-------------|
-| 物料-主材 | code | ZC | ZC202510310001 | ❌ 后端生成 |
-| 物料-辅材 | code | FC | FC202510310001 | ❌ 后端生成 |
-| 物料-人工 | code | RG | RG202510310001 | ❌ 后端生成 |
-| 产品套餐 | code | CP | CP202510310001 | ❌ 后端生成 |
-| 订单 | orderNo | DD | DD202510310001 | ❌ 后端生成 |
-| 收款 | paymentNo | SK | SK202510310001 | ❌ 后端生成 |
+| 模块      | 字段      | 前缀 | 示例           | 前端是否传递 |
+| --------- | --------- | ---- | -------------- | ------------ |
+| 物料-主材 | code      | ZC   | ZC202510310001 | ❌ 后端生成  |
+| 物料-辅材 | code      | FC   | FC202510310001 | ❌ 后端生成  |
+| 物料-人工 | code      | RG   | RG202510310001 | ❌ 后端生成  |
+| 产品套餐  | code      | CP   | CP202510310001 | ❌ 后端生成  |
+| 订单      | orderNo   | DD   | DD202510310001 | ❌ 后端生成  |
+| 收款      | paymentNo | SK   | SK202510310001 | ❌ 后端生成  |
 
 ---
 
 ## 🔍 验证方法
 
 ### 测试创建物料
+
 ```typescript
 // ✅ 正确的请求体
 {
@@ -235,15 +255,16 @@ export enum PaymentStatus {
 ```
 
 ### 测试物料类别
+
 ```typescript
 // ✅ 正确的类别值
-category: "main"       // 主材
-category: "auxiliary"  // 辅材
-category: "labor"      // 人工
+category: "main"; // 主材
+category: "auxiliary"; // 辅材
+category: "labor"; // 人工
 
 // ❌ 错误的类别值
-category: "mainMaterial"  // ❌ 已废弃
-category: "craft"         // ❌ 已废弃
+category: "mainMaterial"; // ❌ 已废弃
+category: "craft"; // ❌ 已废弃
 ```
 
 ---
@@ -253,10 +274,12 @@ category: "craft"         // ❌ 已废弃
 虽然已检查代码，但建议实际测试以下模块：
 
 ### 产品套餐（Products）
+
 - ✅ 不传递 `code`（后端生成 CP 前缀）
 - ✅ `status` 默认为 `active`
 
 ### 订单明细（OrderMaterials）
+
 - ✅ 由业务流程自动创建（从套餐复制）
 - ✅ 编辑明细时传递：orderMaterialId, quantity, price
 
@@ -268,29 +291,28 @@ category: "craft"         // ❌ 已废弃
 
 1. **所有编码/编号字段**：
    - code、orderNo、paymentNo、productCode 等
-   
 2. **初始状态字段**（创建时）：
    - 初始状态由后端自动设置
-   
 3. **累计金额字段**：
    - paidAmount（已收金额）- 由收款确认后自动累加
-   
 4. **时间戳字段**：
    - createdAt、updatedAt - 由数据库自动管理
 
 ### ✅ 字段格式约定
 
 **日期格式**：
+
 ```javascript
-"2025-10-31T12:00:00.000Z"  // ✅ ISO 8601
-"2025-10-31"                 // ✅ 简化日期
+"2025-10-31T12:00:00.000Z"; // ✅ ISO 8601
+"2025-10-31"; // ✅ 简化日期
 ```
 
 **枚举值**：
+
 ```javascript
-status: "active"    // ✅ 小写英文
-status: "ACTIVE"    // ❌ 大写
-status: "启用"      // ❌ 中文
+status: "active"; // ✅ 小写英文
+status: "ACTIVE"; // ❌ 大写
+status: "启用"; // ❌ 中文
 ```
 
 ---
@@ -331,12 +353,14 @@ status: "启用"      // ❌ 中文
 只需在字典表中添加单位数据即可：
 
 **字典类型（dict_types 表）**：
+
 ```sql
-INSERT INTO dict_types (code, name, sort, status, remark) 
+INSERT INTO dict_types (code, name, sort, status, remark)
 VALUES ('material_unit', '物料单位', 1, 1, '物料管理中使用的单位');
 ```
 
 **字典数据（dict_data 表）**：
+
 ```sql
 INSERT INTO dict_data (type_code, label, value, sort, status, remark) VALUES
 ('material_unit', '平方米', 'm2', 1, 1, '面积单位'),
@@ -352,9 +376,10 @@ INSERT INTO dict_data (type_code, label, value, sort, status, remark) VALUES
 ```
 
 **前端调用**：
+
 ```typescript
 // 自动调用：GET /api/dict/data/type/material_unit
-const units = await constantsApi.getUnits()
+const units = await constantsApi.getUnits();
 ```
 
 ### 2️⃣ **启动测试**
@@ -381,4 +406,3 @@ pnpm --filter @erp/main dev
 
 **状态**: ✅ 物料管理模块已完全对齐后端接口  
 **待办**: ⚠️ 后端需在字典表中添加 `material_unit` 类型的单位数据
-
