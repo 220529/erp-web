@@ -10,11 +10,10 @@ import { formatDateTime } from '@/utils/format'
 import styles from './index.module.less'
 
 const roleMap: Record<string, string> = {
-  admin: '管理员',
-  sales: '销售',
-  manager: '经理',
+  admin: '系统管理员',
+  designer: '设计师',
+  foreman: '工长',
   finance: '财务',
-  warehouse: '仓库管理',
 }
 
 const statusMap: Record<number, { text: string; color: string }> = {

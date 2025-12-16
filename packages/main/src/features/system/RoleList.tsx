@@ -182,7 +182,7 @@ export default function RoleList() {
       >
         <Form form={form} layout="vertical">
           <Form.Item name="key" label="角色标识" rules={[{ required: true }]}>
-            <Input disabled={!!roleModal.data} placeholder="如：sales, designer" />
+            <Input disabled={!!roleModal.data} placeholder="如：designer, foreman" />
           </Form.Item>
           <Form.Item name="name" label="角色名称" rules={[{ required: true }]}>
             <Input />

@@ -7,7 +7,6 @@
  */
 export enum UserRole {
   ADMIN = 'admin', // 系统管理员
-  SALES = 'sales', // 销售
   DESIGNER = 'designer', // 设计师
   FOREMAN = 'foreman', // 工长
   FINANCE = 'finance', // 财务
@@ -115,7 +114,6 @@ export enum ProjectStatus {
 export const EnumLabels = {
   UserRole: {
     [UserRole.ADMIN]: '系统管理员',
-    [UserRole.SALES]: '销售',
     [UserRole.DESIGNER]: '设计师',
     [UserRole.FOREMAN]: '工长',
     [UserRole.FINANCE]: '财务',

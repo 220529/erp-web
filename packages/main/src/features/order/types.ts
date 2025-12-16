@@ -12,8 +12,6 @@ export interface Order {
   totalAmount: number // 订单总金额
   paidAmount: number // 已收金额
   costAmount: number // 成本金额
-  salesId?: number
-  salesName?: string // 销售姓名（关联查询）
   designerId?: number
   designerName?: string // 设计师姓名（关联查询）
   foremanId?: number
@@ -32,7 +30,6 @@ export interface Order {
 export interface CreateOrderDto {
   customerId: number
   totalAmount: number
-  salesId?: number
   designerId?: number
   foremanId?: number
   signedAt?: string

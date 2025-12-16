@@ -10,8 +10,6 @@ export interface Customer {
   address?: string // 详细地址
   area?: string // 所属区域
   status: CustomerStatus // 客户状态
-  salesId?: number // 负责销售ID
-  salesName?: string // 销售姓名（关联查询）
   designerId?: number // 负责设计师ID
   designerName?: string // 设计师姓名（关联查询）
   remark?: string // 备注
@@ -27,7 +25,6 @@ export interface CreateCustomerDto {
   mobile: string
   address?: string
   area?: string
-  salesId?: number
   designerId?: number
   remark?: string
 }

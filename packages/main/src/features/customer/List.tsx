@@ -84,7 +84,6 @@ export default function CustomerList() {
       mobile: record.mobile,
       address: record.address,
       area: record.area,
-      salesId: record.salesId,
       designerId: record.designerId,
       remark: record.remark,
     })
@@ -370,12 +369,6 @@ export default function CustomerList() {
                 <div className={styles.detailItem}>
                   <span className={styles.label}>客户状态：</span>
                   <span>{EnumLabels.CustomerStatus[currentCustomer.status]}</span>
-                </div>
-              </Col>
-              <Col span={12}>
-                <div className={styles.detailItem}>
-                  <span className={styles.label}>负责销售：</span>
-                  <span>{currentCustomer.salesName || '-'}</span>
                 </div>
               </Col>
               <Col span={12}>

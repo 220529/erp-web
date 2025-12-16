@@ -20,7 +20,7 @@ export interface QueryParams {
   pageSize?: number
   keyword?: string
   stage?: string
-  salesId?: number
+  designerId?: number
 }
 
 /**

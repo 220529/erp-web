@@ -51,13 +51,6 @@ export const customerColumns = (
     ),
   },
   {
-    title: '负责销售',
-    dataIndex: 'salesName',
-    key: 'salesName',
-    width: 100,
-    render: (text: string) => text || '-',
-  },
-  {
     title: '负责设计师',
     dataIndex: 'designerName',
     key: 'designerName',
