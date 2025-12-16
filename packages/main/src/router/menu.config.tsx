@@ -16,6 +16,9 @@ import {
   FolderOutlined,
   ClockCircleOutlined,
   KeyOutlined,
+  TeamOutlined,
+  ApartmentOutlined,
+  SafetyOutlined,
 } from '@ant-design/icons'
 
 export interface MenuItem {
@@ -96,6 +99,18 @@ export const menuConfig: MenuItem[] = [
     label: '系统管理',
     icon: <SettingOutlined />,
     children: [
+      {
+        key: '/system/org',
+        label: '组织架构',
+        icon: <ApartmentOutlined />,
+        path: '/system/org',
+      },
+      {
+        key: '/system/role',
+        label: '角色管理',
+        icon: <SafetyOutlined />,
+        path: '/system/role',
+      },
       {
         key: '/system/feature',
         label: '系统功能',

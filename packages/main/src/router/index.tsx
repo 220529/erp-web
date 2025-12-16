@@ -3,7 +3,7 @@ import { MainLayout } from '@/components'
 import AuthGuard from '@/components/AuthGuard'
 import Dashboard from '@/features/dashboard'
 import { CodeFlowList } from '@/features/codeflow'
-import SystemIndex from '@/features/system'
+import SystemIndex, { Organization, RoleList } from '@/features/system'
 import ProfileIndex from '@/features/profile'
 import { CustomerList } from '@/features/customer'
 import { OrderList, OrderDetail } from '@/features/order'
@@ -81,6 +81,14 @@ export const router = createBrowserRouter(
         {
           path: 'system/scheduler',
           element: <SchedulerList />,
+        },
+        {
+          path: 'system/org',
+          element: <Organization />,
+        },
+        {
+          path: 'system/role',
+          element: <RoleList />,
         },
         {
           path: 'profile',

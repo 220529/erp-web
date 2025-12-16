@@ -1,0 +1,70 @@
+.container {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - 140px);
+}
+
+.treeCard {
+  width: 280px;
+  flex-shrink: 0;
+  overflow: auto;
+
+  :global(.ant-card-body) {
+    padding: 12px;
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+  }
+
+  :global(.ant-tree-node-content-wrapper) {
+    flex: 1;
+    overflow: hidden;
+  }
+}
+
+.userCard {
+  flex: 1;
+  overflow: auto;
+
+  :global(.ant-card-body) {
+    padding: 16px;
+  }
+}
+
+.treeNode {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-right: 4px;
+  gap: 6px;
+
+  .nodeIcon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .nodeTitle {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .moreIcon {
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: auto;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 4px;
+    }
+  }
+
+  &:hover .moreIcon {
+    opacity: 1;
+  }
+}

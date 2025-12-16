@@ -1,6 +1,7 @@
 import { Tag, Space, Button, Popconfirm } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { formatDateTime } from '@/utils/format'
+import { hasPermission } from '@/utils/auth'
 import type { Customer } from '@/features/customer/types'
 import { CustomerStatus, EnumLabels, EnumColors } from '@/constants/enums'
 
@@ -80,19 +81,23 @@ export const customerColumns = (
         <Button type="link" size="small" onClick={() => onViewDetail(record)}>
           详情
         </Button>
-        <Button type="link" size="small" onClick={() => onEdit(record)}>
-          编辑
-        </Button>
-        <Popconfirm
-          title="确定删除该客户吗？"
-          onConfirm={() => onDelete(record.id)}
-          okText="确定"
-          cancelText="取消"
-        >
-          <Button type="link" size="small" danger>
-            删除
+        {hasPermission('customer:update') && (
+          <Button type="link" size="small" onClick={() => onEdit(record)}>
+            编辑
           </Button>
-        </Popconfirm>
+        )}
+        {hasPermission('customer:delete') && (
+          <Popconfirm
+            title="确定删除该客户吗？"
+            onConfirm={() => onDelete(record.id)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button type="link" size="small" danger>
+              删除
+            </Button>
+          </Popconfirm>
+        )}
       </Space>
     ),
   },

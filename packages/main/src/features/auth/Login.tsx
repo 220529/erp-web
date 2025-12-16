@@ -7,7 +7,7 @@ import { Form, Input, Button, message } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import * as authApi from '@/api/auth'
-import { setToken, setUserInfo } from '@/utils/auth'
+import { setToken, setUserInfo, setPermissions, setMenus } from '@/utils/auth'
 import styles from './index.module.less'
 
 export default function Login() {
@@ -19,9 +19,11 @@ export default function Login() {
       setLoading(true)
       const response = await authApi.login(values)
       
-      // 保存 token 和用户信息
+      // 保存 token、用户信息、权限和菜单
       setToken(response.token)
       setUserInfo(response.user)
+      setPermissions(response.permissions || [])
+      setMenus(response.menus || [])
       
       message.success('登录成功！')
       

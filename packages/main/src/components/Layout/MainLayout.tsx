@@ -3,7 +3,7 @@
  * 包含顶部导航、侧边菜单、内容区域
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Layout, Menu, Avatar, Dropdown, Space, Button, message, Modal } from 'antd'
 import {
   MenuFoldOutlined,
@@ -11,20 +11,81 @@ import {
   UserOutlined,
   LogoutOutlined,
   SettingOutlined,
+  DashboardOutlined,
+  ShoppingOutlined,
+  DatabaseOutlined,
+  BarChartOutlined,
+  BookOutlined,
+  CodeOutlined,
+  FolderOutlined,
+  ClockCircleOutlined,
+  KeyOutlined,
+  TeamOutlined,
+  ApartmentOutlined,
+  SafetyOutlined,
+  MenuOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import type { MenuProps } from 'antd'
 import { menuConfig, convertToAntdMenuItems } from '@/router/menu.config'
-import { getUserInfo, clearAuth } from '@/utils/auth'
+import { getUserInfo, clearAuth, getMenus } from '@/utils/auth'
+import type { MenuItem as ApiMenuItem } from '@/api/auth'
 import * as authApi from '@/api/auth'
 import styles from './index.module.less'
 
 const { Header, Sider, Content } = Layout
 
 // ============================================
-// 菜单配置
+// 图标映射
 // ============================================
-const menuItems = convertToAntdMenuItems(menuConfig)
+const iconMap: Record<string, React.ReactNode> = {
+  DashboardOutlined: <DashboardOutlined />,
+  UserOutlined: <UserOutlined />,
+  ShoppingOutlined: <ShoppingOutlined />,
+  DatabaseOutlined: <DatabaseOutlined />,
+  BarChartOutlined: <BarChartOutlined />,
+  SettingOutlined: <SettingOutlined />,
+  BookOutlined: <BookOutlined />,
+  CodeOutlined: <CodeOutlined />,
+  FolderOutlined: <FolderOutlined />,
+  ClockCircleOutlined: <ClockCircleOutlined />,
+  KeyOutlined: <KeyOutlined />,
+  TeamOutlined: <TeamOutlined />,
+  ApartmentOutlined: <ApartmentOutlined />,
+  SafetyOutlined: <SafetyOutlined />,
+  MenuOutlined: <MenuOutlined />,
+  FileTextOutlined: <FileTextOutlined />,
+  PayCircleOutlined: <BarChartOutlined />,
+  AppstoreOutlined: <DatabaseOutlined />,
+  ShopOutlined: <ShoppingOutlined />,
+}
+
+// ============================================
+// 将后端菜单转换为 Ant Design Menu items
+// ============================================
+function convertApiMenuToAntd(menus: ApiMenuItem[]): MenuProps['items'] {
+  return menus
+    .filter((item) => item.type === 'menu' && item.hidden !== 1)
+    .map((item) => {
+      // 有子菜单的用 name 作为 key（分组），叶子菜单用 path 作为 key（可点击跳转）
+      const hasChildren = item.children && item.children.filter((c) => c.type === 'menu').length > 0
+      const menuItem: any = {
+        key: hasChildren ? `group-${item.name}` : (item.path || `/${item.name}`),
+        icon: item.icon ? iconMap[item.icon] : null,
+        label: item.title,
+      }
+      if (hasChildren) {
+        menuItem.children = convertApiMenuToAntd(item.children!)
+      }
+      return menuItem
+    })
+}
+
+// ============================================
+// 静态菜单配置（后端菜单为空时使用）
+// ============================================
+const staticMenuItems = convertToAntdMenuItems(menuConfig)
 
 // ============================================
 // 主组件
@@ -47,6 +108,15 @@ export default function MainLayout() {
   const location = useLocation()
   const userInfo = getUserInfo()
   const [openKeys, setOpenKeys] = useState<string[]>(() => getOpenKeys(location.pathname))
+
+  // 动态菜单：优先使用后端返回的菜单，为空时使用静态菜单
+  const menuItems = useMemo(() => {
+    const apiMenus = getMenus()
+    if (apiMenus && apiMenus.length > 0) {
+      return convertApiMenuToAntd(apiMenus)
+    }
+    return staticMenuItems
+  }, [])
 
   // 处理菜单点击
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {

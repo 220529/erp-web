@@ -12,6 +12,22 @@ export interface LoginDto {
   password: string
 }
 
+export interface MenuItem {
+  id: number
+  name: string
+  title: string
+  icon?: string
+  path?: string
+  component?: string
+  parentId?: number
+  type: 'menu' | 'button'
+  permission?: string
+  sort: number
+  hidden: number
+  status: number
+  children?: MenuItem[]
+}
+
 export interface LoginResponse {
   token: string
   user: {
@@ -20,6 +36,8 @@ export interface LoginResponse {
     name: string
     role?: string
   }
+  permissions: string[]
+  menus: MenuItem[]
 }
 
 export interface UserInfo {

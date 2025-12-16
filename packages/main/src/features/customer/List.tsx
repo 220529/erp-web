@@ -14,7 +14,7 @@ import {
 } from 'antd'
 import { PlusOutlined, SearchOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { ListPage } from '@/components'
+import { ListPage, AuthButton } from '@/components'
 import { customerApi, productApi, codeflowApi } from '@/api'
 import type { Customer, CreateCustomerDto, UpdateCustomerDto } from './types'
 import type { Product } from '@/features/product/types'
@@ -217,10 +217,16 @@ export default function CustomerList() {
         {/* 操作按钮 */}
         <div style={{ marginBottom: 16 }}>
           <Space>
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+            <AuthButton
+              permission="customer:create"
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleCreate}
+            >
               新增客户
-            </Button>
-            <Button
+            </AuthButton>
+            <AuthButton
+              permission="customer:export"
               icon={<DownloadOutlined />}
               loading={exporting}
               onClick={async () => {
@@ -236,7 +242,7 @@ export default function CustomerList() {
               }}
             >
               导出
-            </Button>
+            </AuthButton>
           </Space>
         </div>
 
