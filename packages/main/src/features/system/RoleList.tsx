@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Card, Table, Button, Space, Modal, Form, Input, InputNumber, Select, message, Popconfirm, Tag, Tree } from 'antd'
+import { Card, Table, Space, Modal, Form, Input, InputNumber, Select, message, Popconfirm, Tag, Tree, Spin } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons'
 import * as systemApi from '@/api/system'
 import type { Role, Menu } from '@/api/system'
@@ -76,12 +76,12 @@ export default function RoleList() {
     setPermModal({ open: true, role })
     setPermLoading(true)
     try {
-      const [tree, keys] = await Promise.all([
+      const [tree, keys]: any = await Promise.all([
         systemApi.getMenuTree(),
         systemApi.getRoleMenus(role.key),
       ])
-      setMenuTree(tree as Menu[])
-      setCheckedKeys(keys as number[])
+      setMenuTree(tree || [])
+      setCheckedKeys(keys || [])
     } finally {
       setPermLoading(false)
     }
@@ -212,14 +212,15 @@ export default function RoleList() {
         onCancel={() => setPermModal({ open: false })}
         width={500}
       >
-        <Tree
-          checkable
-          loading={permLoading}
-          treeData={convertMenuTree(menuTree)}
-          checkedKeys={checkedKeys}
-          onCheck={(keys) => setCheckedKeys(keys as number[])}
-          defaultExpandAll
-        />
+        <Spin spinning={permLoading}>
+          <Tree
+            checkable
+            treeData={convertMenuTree(menuTree)}
+            checkedKeys={checkedKeys}
+            onCheck={(keys) => setCheckedKeys(keys as number[])}
+            defaultExpandAll
+          />
+        </Spin>
       </Modal>
     </Card>
   )

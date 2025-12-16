@@ -53,7 +53,7 @@ export default function Organization() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [roles, setRoles] = useState<Role[]>([])
-  const [loading, setLoading] = useState(false)
+  const [, setLoading] = useState(false)
   const [userLoading, setUserLoading] = useState(false)
   const [selectedNode, setSelectedNode] = useState<TreeNodeData | null>(null)
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 })
@@ -83,8 +83,8 @@ export default function Organization() {
       const companyList = res.list || []
       setCompanies(companyList)
       // 加载所有部门
-      const deptRes = await systemApi.getDepartments()
-      setDepartments(deptRes as Department[])
+      const deptRes: any = await systemApi.getDepartments()
+      setDepartments(deptRes || [])
       // 首次加载时展开所有公司，刷新时保持当前展开状态
       if (!keepExpanded) {
         setExpandedKeys(companyList.map((c: Company) => `company-${c.id}`))
@@ -95,8 +95,8 @@ export default function Organization() {
   }
 
   const loadRoles = async () => {
-    const res = await systemApi.getRolesSimple()
-    setRoles(res as Role[])
+    const res: any = await systemApi.getRolesSimple()
+    setRoles(res || [])
   }
 
   const loadUsers = async (companyId?: number, departmentId?: number, page = 1) => {

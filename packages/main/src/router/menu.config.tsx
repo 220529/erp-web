@@ -16,7 +16,6 @@ import {
   FolderOutlined,
   ClockCircleOutlined,
   KeyOutlined,
-  TeamOutlined,
   ApartmentOutlined,
   SafetyOutlined,
 } from '@ant-design/icons'
