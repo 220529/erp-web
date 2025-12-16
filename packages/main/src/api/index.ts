@@ -40,3 +40,6 @@ export * as productApi from './product'
 // 导出常量相关 API
 export * as constantsApi from './constants'
 
+// 导出定时任务相关 API
+export * as schedulerApi from './scheduler'
+

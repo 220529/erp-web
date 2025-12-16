@@ -13,6 +13,7 @@ import ProductMaterialsManagement from '@/features/product/MaterialsManagement'
 import { FinanceList } from '@/features/finance'
 import { DictList } from '@/features/dict'
 import { FileList } from '@/features/file'
+import { SchedulerList } from '@/features/scheduler'
 import { Login } from '@/features/auth'
 
 export const router = createBrowserRouter(
@@ -74,8 +75,12 @@ export const router = createBrowserRouter(
           element: <FileList />,
         },
         {
-          path: 'system',
+          path: 'system/feature',
           element: <SystemIndex />,
+        },
+        {
+          path: 'system/scheduler',
+          element: <SchedulerList />,
         },
         {
           path: 'profile',

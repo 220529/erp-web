@@ -14,6 +14,8 @@ import {
   SettingOutlined,
   BookOutlined,
   FolderOutlined,
+  ClockCircleOutlined,
+  KeyOutlined,
 } from '@ant-design/icons'
 
 export interface MenuItem {
@@ -91,9 +93,22 @@ export const menuConfig: MenuItem[] = [
   },
   {
     key: '/system',
-    label: '系统功能',
+    label: '系统管理',
     icon: <SettingOutlined />,
-    path: '/system',
+    children: [
+      {
+        key: '/system/feature',
+        label: '系统功能',
+        icon: <KeyOutlined />,
+        path: '/system/feature',
+      },
+      {
+        key: '/system/scheduler',
+        label: '定时任务',
+        icon: <ClockCircleOutlined />,
+        path: '/system/scheduler',
+      },
+    ],
   },
   // 预留其他菜单
   // {

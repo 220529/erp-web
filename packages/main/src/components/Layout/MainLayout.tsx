@@ -29,11 +29,24 @@ const menuItems = convertToAntdMenuItems(menuConfig)
 // ============================================
 // 主组件
 // ============================================
+// 根据路径获取需要展开的菜单 keys
+function getOpenKeys(pathname: string): string[] {
+  const parts = pathname.split('/').filter(Boolean)
+  const keys: string[] = []
+  let path = ''
+  for (let i = 0; i < parts.length - 1; i++) {
+    path += '/' + parts[i]
+    keys.push(path)
+  }
+  return keys
+}
+
 export default function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const userInfo = getUserInfo()
+  const [openKeys, setOpenKeys] = useState<string[]>(() => getOpenKeys(location.pathname))
 
   // 处理菜单点击
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
@@ -120,6 +133,8 @@ export default function MainLayout() {
           theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
+          openKeys={collapsed ? [] : openKeys}
+          onOpenChange={(keys) => setOpenKeys(keys)}
           items={menuItems}
           onClick={handleMenuClick}
         />
