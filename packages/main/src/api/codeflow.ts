@@ -86,7 +86,7 @@ export async function orderCreateFromProduct(params: {
   productId: number
   remark?: string
 }): Promise<FlowExecuteResult> {
-  return executeFlow('order_create_from_product', params)
+  return executeFlow('lid8klr7nkv9fic1', params)
 }
 
 /**
@@ -102,41 +102,45 @@ export async function orderMaterialUpdate(params: {
 
 /**
  * 订单签约
+ * @flowKey ux5vzv7qq5gw5z38
  */
 export async function orderSign(params: {
   orderId: number
   depositAmount: number
   paymentMethod: string
 }): Promise<FlowExecuteResult> {
-  return executeFlow('order_sign', params)
+  return executeFlow('ux5vzv7qq5gw5z38', params)
 }
 
 /**
  * 订单开工
+ * @flowKey k1a5idbnul59ti8m
  */
 export async function orderStart(params: {
   orderId: number
   foremanId?: number
 }): Promise<FlowExecuteResult> {
-  return executeFlow('order_start', params)
+  return executeFlow('k1a5idbnul59ti8m', params)
 }
 
 /**
  * 订单完工
+ * @flowKey jttr7xbnuxmu8ggd
  */
 export async function orderComplete(params: {
   orderId: number
 }): Promise<FlowExecuteResult> {
-  return executeFlow('order_complete', params)
+  return executeFlow('jttr7xbnuxmu8ggd', params)
 }
 
 /**
  * 确认收款
+ * @flowKey gqdykf0m7yworrgw
  */
 export async function paymentConfirm(params: {
   paymentId: number
   paidAt?: string
 }): Promise<FlowExecuteResult> {
-  return executeFlow('payment_confirm', params)
+  return executeFlow('gqdykf0m7yworrgw', params)
 }
 

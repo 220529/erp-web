@@ -8,6 +8,7 @@ export interface Payment {
   paymentNo: string // 收款单号（后端字段名）
   orderId: number
   orderNo?: string // 订单编号（关联查询）
+  order?: { orderNo: string } // 关联的订单对象
   type: PaymentType // 收款类型枚举
   amount: number // 收款金额
   method?: string // 收款方式

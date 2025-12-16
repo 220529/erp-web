@@ -155,7 +155,7 @@ export default function OrderList() {
   const stats = {
     totalAmount: data.reduce((sum, item) => sum + Number(item.totalAmount), 0),
     paidAmount: data.reduce((sum, item) => sum + Number(item.paidAmount), 0),
-    draftCount: data.filter((item) => item.status === OrderStatus.DRAFT).length,
+    draftCount: data.filter((item) => item.status === OrderStatus.PENDING).length,
     inProgressCount: data.filter((item) => item.status === OrderStatus.IN_PROGRESS).length,
   }
 
@@ -187,7 +187,7 @@ export default function OrderList() {
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="草稿订单" value={stats.draftCount} suffix="单" />
+            <Statistic title="待签约" value={stats.draftCount} suffix="单" />
           </Card>
         </Col>
         <Col span={6}>
@@ -213,11 +213,11 @@ export default function OrderList() {
           </Form.Item>
           <Form.Item name="status">
             <Select placeholder="订单状态" allowClear style={{ width: 120 }}>
-              <Option value={OrderStatus.DRAFT}>草稿</Option>
+              <Option value={OrderStatus.PENDING}>待签约</Option>
               <Option value={OrderStatus.SIGNED}>已签约</Option>
               <Option value={OrderStatus.IN_PROGRESS}>施工中</Option>
               <Option value={OrderStatus.COMPLETED}>已完工</Option>
-              <Option value={OrderStatus.CANCELLED}>已取消</Option>
+              <Option value={OrderStatus.VOIDED}>已作废</Option>
             </Select>
           </Form.Item>
           <Form.Item>

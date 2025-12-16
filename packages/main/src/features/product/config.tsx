@@ -11,7 +11,8 @@ export const productColumns = (
   onEdit: (record: Product) => void,
   onDelete: (id: number) => void,
   onViewDetail: (record: Product) => void,
-  onManageMaterials: (record: Product) => void
+  onManageMaterials: (record: Product) => void,
+  permissions: { canUpdate: boolean; canDelete: boolean } = { canUpdate: true, canDelete: true }
 ): ColumnsType<Product> => [
   {
     title: '套餐编码',
@@ -89,25 +90,31 @@ export const productColumns = (
     fixed: 'right',
     render: (_: any, record: Product) => (
       <Space size="small">
-        <Button type="link" size="small" onClick={() => onManageMaterials(record)}>
-          管理物料
-        </Button>
+        {permissions.canUpdate && (
+          <Button type="link" size="small" onClick={() => onManageMaterials(record)}>
+            管理物料
+          </Button>
+        )}
         <Button type="link" size="small" onClick={() => onViewDetail(record)}>
           详情
         </Button>
-        <Button type="link" size="small" onClick={() => onEdit(record)}>
-          编辑
-        </Button>
-        <Popconfirm
-          title="确定删除该套餐吗？"
-          onConfirm={() => onDelete(record.id)}
-          okText="确定"
-          cancelText="取消"
-        >
-          <Button type="link" size="small" danger>
-            删除
+        {permissions.canUpdate && (
+          <Button type="link" size="small" onClick={() => onEdit(record)}>
+            编辑
           </Button>
-        </Popconfirm>
+        )}
+        {permissions.canDelete && (
+          <Popconfirm
+            title="确定删除该套餐吗？"
+            onConfirm={() => onDelete(record.id)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button type="link" size="small" danger>
+              删除
+            </Button>
+          </Popconfirm>
+        )}
       </Space>
     ),
   },

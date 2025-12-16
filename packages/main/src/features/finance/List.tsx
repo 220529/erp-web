@@ -18,7 +18,20 @@ import { PlusOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons'
 import { ListPage } from '@/components'
 import { paymentApi, codeflowApi } from '@/api'
 import type { Payment, CreatePaymentDto, UpdatePaymentDto } from './types'
-import { PaymentType, PaymentStatus } from '@/constants/enums'
+import { PaymentType, PaymentStatus, EnumLabels } from '@/constants/enums'
+
+// 收款方式映射
+const PaymentMethodLabels: Record<string, string> = {
+  cash: '现金',
+  bank_transfer: '银行转账',
+  alipay: '支付宝',
+  wechat: '微信',
+}
+
+function formatPaymentMethod(method?: string): string {
+  if (!method) return '-'
+  return PaymentMethodLabels[method] || method
+}
 import { financeColumns } from './config'
 import { formatDateTime } from '@/utils/format'
 import dayjs from 'dayjs'
@@ -356,13 +369,13 @@ export default function FinanceList() {
               <Col span={12}>
                 <div className={styles.detailItem}>
                   <span className={styles.label}>订单编号：</span>
-                  <span>{currentPayment.orderNo || '-'}</span>
+                  <span>{currentPayment.order?.orderNo || currentPayment.orderNo || '-'}</span>
                 </div>
               </Col>
               <Col span={12}>
                 <div className={styles.detailItem}>
                   <span className={styles.label}>收款类型：</span>
-                  <span>{currentPayment.type}</span>
+                  <span>{EnumLabels.PaymentType[currentPayment.type as PaymentType] || currentPayment.type}</span>
                 </div>
               </Col>
               <Col span={12}>
@@ -374,7 +387,7 @@ export default function FinanceList() {
               <Col span={12}>
                 <div className={styles.detailItem}>
                   <span className={styles.label}>收款方式：</span>
-                  <span>{currentPayment.method || '-'}</span>
+                  <span>{formatPaymentMethod(currentPayment.method)}</span>
                 </div>
               </Col>
               <Col span={12}>
@@ -392,7 +405,7 @@ export default function FinanceList() {
               <Col span={12}>
                 <div className={styles.detailItem}>
                   <span className={styles.label}>状态：</span>
-                  <span>{currentPayment.status}</span>
+                  <span>{EnumLabels.PaymentStatus[currentPayment.status as PaymentStatus] || currentPayment.status}</span>
                 </div>
               </Col>
               <Col span={12}>

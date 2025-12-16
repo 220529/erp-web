@@ -22,6 +22,7 @@ import type { Product, CreateProductDto, UpdateProductDto, ProductMaterial } fro
 import { productColumns } from './config'
 import { formatDateTime, formatMoney } from '@/utils/format'
 import { ProductStatus, EnumLabels } from '@/constants/enums'
+import { usePermission } from '@/hooks/usePermission'
 import styles from './index.module.less'
 
 const { Option } = Select
@@ -29,6 +30,7 @@ const { TextArea } = Input
 
 export default function ProductList() {
   const navigate = useNavigate()
+  const { hasPermission } = usePermission()
   const [data, setData] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
@@ -151,7 +153,17 @@ export default function ProductList() {
     setPage(1)
   }
 
-  const columns = productColumns(handleEdit, handleDelete, handleViewDetail, handleManageMaterials)
+  const canCreate = hasPermission('product:create')
+  const canUpdate = hasPermission('product:update')
+  const canDelete = hasPermission('product:delete')
+
+  const columns = productColumns(
+    handleEdit,
+    handleDelete,
+    handleViewDetail,
+    handleManageMaterials,
+    { canUpdate, canDelete }
+  )
 
   const materialColumns = [
     {
@@ -233,9 +245,11 @@ export default function ProductList() {
 
         {/* 操作按钮 */}
         <div style={{ marginBottom: 16 }}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-            新增套餐
-          </Button>
+          {canCreate && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+              新增套餐
+            </Button>
+          )}
         </div>
 
         {/* 列表 */}

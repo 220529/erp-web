@@ -1,82 +1,105 @@
-import { Card, Row, Col, Statistic, Button, Space } from 'antd'
-import { UserOutlined, ShoppingOutlined, DollarOutlined, CodeOutlined } from '@ant-design/icons'
+import { useState, useEffect } from 'react'
+import { Card, Row, Col, Statistic, Button, Space, Spin } from 'antd'
+import {
+  UserOutlined,
+  ShoppingOutlined,
+  DollarOutlined,
+  AppstoreOutlined,
+  DatabaseOutlined,
+} from '@ant-design/icons'
 import { Link } from 'react-router-dom'
+import * as dashboardApi from '@/api/dashboard'
 import styles from './index.module.less'
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    customerCount: 0,
+    orderCount: 0,
+    productCount: 0,
+    monthlyIncome: 0,
+  })
+
+  useEffect(() => {
+    loadStatistics()
+  }, [])
+
+  async function loadStatistics() {
+    try {
+      setLoading(true)
+      const data = await dashboardApi.getStatistics()
+      setStats(data)
+    } catch (error) {
+      console.error('加载统计数据失败:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className={styles.dashboard}>
       <h1 className={styles.title}>ERP 系统 - 工作台</h1>
-      
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} md={6}>
-          <Link to="/customer">
-            <Card hoverable>
-              <Statistic
-                title="客户总数"
-                value={0}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: '#3f8600' }}
-              />
-            </Card>
-          </Link>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Link to="/order">
-            <Card hoverable>
-              <Statistic
-                title="订单总数"
-                value={0}
-                prefix={<ShoppingOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Link>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Link to="/project">
-            <Card hoverable>
-              <Statistic
-                title="项目总数"
-                value={0}
-                prefix={<CodeOutlined />}
-                valueStyle={{ color: '#722ed1' }}
-              />
-            </Card>
-          </Link>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Link to="/finance">
-            <Card hoverable>
-              <Statistic
-                title="本月收入"
-                value={0}
-                prefix={<DollarOutlined />}
-                precision={2}
-                valueStyle={{ color: '#cf1322' }}
-                suffix="元"
-              />
-            </Card>
-          </Link>
-        </Col>
-      </Row>
+
+      <Spin spinning={loading}>
+        <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Col xs={24} sm={12} md={6}>
+            <Link to="/customer">
+              <Card hoverable>
+                <Statistic
+                  title="客户总数"
+                  value={stats.customerCount}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: '#3f8600' }}
+                />
+              </Card>
+            </Link>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Link to="/order">
+              <Card hoverable>
+                <Statistic
+                  title="订单总数"
+                  value={stats.orderCount}
+                  prefix={<ShoppingOutlined />}
+                  valueStyle={{ color: '#1890ff' }}
+                />
+              </Card>
+            </Link>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Link to="/product">
+              <Card hoverable>
+                <Statistic
+                  title="套餐总数"
+                  value={stats.productCount}
+                  prefix={<AppstoreOutlined />}
+                  valueStyle={{ color: '#722ed1' }}
+                />
+              </Card>
+            </Link>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Link to="/finance">
+              <Card hoverable>
+                <Statistic
+                  title="本月收入"
+                  value={stats.monthlyIncome}
+                  prefix={<DollarOutlined />}
+                  precision={2}
+                  valueStyle={{ color: '#cf1322' }}
+                  suffix="元"
+                />
+              </Card>
+            </Link>
+          </Col>
+        </Row>
+      </Spin>
 
       <Card className={styles.card}>
         <h2>欢迎使用 ERP 系统</h2>
         <p style={{ marginTop: 16, fontSize: 16, color: '#666' }}>
-          这是一个基于 React + 微前端架构的企业级 ERP 系统。
+          装修行业企业级管理系统，助力业务高效运转。
         </p>
-        <div className={styles.techStack}>
-          <h3>技术栈：</h3>
-          <ul>
-            <li>✅ React 18 + TypeScript</li>
-            <li>✅ Vite 5</li>
-            <li>✅ Ant Design 5</li>
-            <li>✅ React Router 6</li>
-            <li>✅ pnpm Workspace Monorepo</li>
-            <li>✅ Less + CSS Modules</li>
-          </ul>
-        </div>
         <div className={styles.quickStart}>
           <h3>快速开始：</h3>
           <Space style={{ marginTop: 12 }} wrap>
@@ -90,13 +113,13 @@ export default function Dashboard() {
                 订单管理
               </Button>
             </Link>
-            <Link to="/project">
-              <Button icon={<CodeOutlined />}>
-                项目管理
+            <Link to="/product">
+              <Button icon={<AppstoreOutlined />}>
+                套餐管理
               </Button>
             </Link>
             <Link to="/material">
-              <Button icon={<CodeOutlined />}>
+              <Button icon={<DatabaseOutlined />}>
                 物料管理
               </Button>
             </Link>

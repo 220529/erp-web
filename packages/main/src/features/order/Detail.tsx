@@ -261,7 +261,7 @@ export default function OrderDetail() {
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEditMaterial(record)}
-            disabled={order?.status !== OrderStatus.DRAFT}
+            disabled={order?.status !== OrderStatus.PENDING}
           >
             编辑
           </Button>
@@ -276,7 +276,7 @@ export default function OrderDetail() {
               size="small"
               danger
               icon={<DeleteOutlined />}
-              disabled={order?.status !== OrderStatus.DRAFT}
+              disabled={order?.status !== OrderStatus.PENDING}
             >
               删除
             </Button>
@@ -312,7 +312,7 @@ export default function OrderDetail() {
                 {EnumLabels.OrderStatus[order.status]}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="客户姓名">{order.customerName || '-'}</Descriptions.Item>
+            <Descriptions.Item label="客户姓名">{order.customer?.name || '-'}</Descriptions.Item>
             <Descriptions.Item label="签约时间">
               {order.signedAt ? formatDateTime(order.signedAt) : '-'}
             </Descriptions.Item>
@@ -365,13 +365,15 @@ export default function OrderDetail() {
 
         {/* 状态流转按钮 */}
         <Card title="订单操作" style={{ marginBottom: 16 }}>
-          <Space>
-            {order.status === OrderStatus.DRAFT && (
+          {order.status === OrderStatus.PENDING && (
+            <Space>
               <Button type="primary" onClick={handleSign}>
                 签约
               </Button>
-            )}
-            {order.status === OrderStatus.SIGNED && (
+            </Space>
+          )}
+          {order.status === OrderStatus.SIGNED && (
+            <Space>
               <Popconfirm
                 title="确定开工吗？"
                 description="订单开工后将进入施工阶段"
@@ -381,8 +383,10 @@ export default function OrderDetail() {
               >
                 <Button type="primary">开工</Button>
               </Popconfirm>
-            )}
-            {order.status === OrderStatus.IN_PROGRESS && (
+            </Space>
+          )}
+          {order.status === OrderStatus.IN_PROGRESS && (
+            <Space>
               <Popconfirm
                 title="确定完工吗？"
                 onConfirm={handleComplete}
@@ -391,15 +395,25 @@ export default function OrderDetail() {
               >
                 <Button type="primary">完工</Button>
               </Popconfirm>
-            )}
-          </Space>
+            </Space>
+          )}
+          {order.status === OrderStatus.COMPLETED && (
+            <div style={{ color: '#52c41a', fontSize: 14 }}>
+              ✅ 订单已完工，感谢您的信任！
+            </div>
+          )}
+          {order.status === OrderStatus.VOIDED && (
+            <div style={{ color: '#ff4d4f', fontSize: 14 }}>
+              ❌ 订单已作废
+            </div>
+          )}
         </Card>
 
         {/* 订单明细 */}
         <Card
           title="订单明细"
           extra={
-            order.status === OrderStatus.DRAFT && (
+            order.status === OrderStatus.PENDING && (
               <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateMaterial}>
                 添加明细
               </Button>

@@ -37,11 +37,11 @@ export enum FollowType {
  * 订单状态枚举
  */
 export enum OrderStatus {
-  DRAFT = 'draft', // 草稿
+  PENDING = 'pending', // 待签约
   SIGNED = 'signed', // 已签约
   IN_PROGRESS = 'in_progress', // 施工中
   COMPLETED = 'completed', // 已完工
-  CANCELLED = 'cancelled', // 已取消
+  VOIDED = 'voided', // 已作废
 }
 
 /**
@@ -132,11 +132,11 @@ export const EnumLabels = {
     [FollowType.QUOTE]: '报价沟通',
   },
   OrderStatus: {
-    [OrderStatus.DRAFT]: '草稿',
+    [OrderStatus.PENDING]: '待签约',
     [OrderStatus.SIGNED]: '已签约',
     [OrderStatus.IN_PROGRESS]: '施工中',
     [OrderStatus.COMPLETED]: '已完工',
-    [OrderStatus.CANCELLED]: '已取消',
+    [OrderStatus.VOIDED]: '已作废',
   },
   OrderItemCategory: {
     [OrderItemCategory.MAIN]: '主材',
@@ -188,11 +188,11 @@ export const EnumColors = {
     [CustomerStatus.COMPLETED]: 'purple',
   },
   OrderStatus: {
-    [OrderStatus.DRAFT]: 'default',
+    [OrderStatus.PENDING]: 'default',
     [OrderStatus.SIGNED]: 'processing',
     [OrderStatus.IN_PROGRESS]: 'warning',
     [OrderStatus.COMPLETED]: 'success',
-    [OrderStatus.CANCELLED]: 'error',
+    [OrderStatus.VOIDED]: 'error',
   },
   ProjectStatus: {
     [ProjectStatus.PLANNING]: 'default',

@@ -19,11 +19,13 @@ import type { ConstantOption } from '@/api/constants'
 import type { Material, CreateMaterialDto, UpdateMaterialDto } from './types'
 import { materialColumns } from './config'
 import { formatDateTime } from '@/utils/format'
+import { usePermission } from '@/hooks/usePermission'
 import styles from './index.module.less'
 
 const { Option } = Select
 
 export default function MaterialList() {
+  const { hasPermission } = usePermission()
   const [data, setData] = useState<Material[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
@@ -138,7 +140,11 @@ export default function MaterialList() {
     setPage(1)
   }
 
-  const columns = materialColumns(handleEdit, handleDelete, handleViewDetail)
+  const canCreate = hasPermission('material:create')
+  const canUpdate = hasPermission('material:update')
+  const canDelete = hasPermission('material:delete')
+
+  const columns = materialColumns(handleEdit, handleDelete, handleViewDetail, { canUpdate, canDelete })
 
   return (
     <div className={styles.materialList}>
@@ -178,9 +184,11 @@ export default function MaterialList() {
 
         {/* 操作按钮 */}
         <div style={{ marginBottom: 16 }}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-            新增物料
-          </Button>
+          {canCreate && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+              新增物料
+            </Button>
+          )}
         </div>
 
         {/* 列表 */}

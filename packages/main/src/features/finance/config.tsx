@@ -22,7 +22,7 @@ export const financeColumns = (
   },
   {
     title: '订单编号',
-    dataIndex: 'orderNo',
+    dataIndex: ['order', 'orderNo'],
     key: 'orderNo',
     width: 150,
     render: (text: string) => text || '-',
