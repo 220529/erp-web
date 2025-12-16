@@ -312,7 +312,7 @@ export default function OrderDetail() {
                 {EnumLabels.OrderStatus[order.status]}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="客户姓名">{order.customer?.name || '-'}</Descriptions.Item>
+            <Descriptions.Item label="客户姓名">{order.customerName || '-'}</Descriptions.Item>
             <Descriptions.Item label="签约时间">
               {order.signedAt ? formatDateTime(order.signedAt) : '-'}
             </Descriptions.Item>

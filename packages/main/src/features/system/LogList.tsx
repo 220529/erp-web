@@ -5,7 +5,6 @@ import type { ColumnsType } from 'antd/es/table'
 import { listLogs, getLog } from '@/api/log'
 import type { Log, QueryLogParams } from '@/api/log'
 import { formatDateTime } from '@/utils/format'
-import dayjs from 'dayjs'
 
 const { RangePicker } = DatePicker
 const { Option } = Select
@@ -36,9 +35,9 @@ export default function LogList() {
   async function loadData() {
     try {
       setLoading(true)
-      const result = await listLogs({ page, pageSize, ...searchParams })
-      setData(result.list || [])
-      setTotal(result.total || 0)
+      const result = await listLogs({ page, pageSize, ...searchParams }) as any
+      setData(result?.list || [])
+      setTotal(result?.total || 0)
     } catch (error: any) {
       message.error(error.message || '加载失败')
     } finally {
@@ -72,7 +71,7 @@ export default function LogList() {
 
   async function handleViewDetail(record: Log) {
     try {
-      const detail = await getLog(record.id)
+      const detail = await getLog(record.id) as Log
       setCurrentLog(detail)
       setDetailOpen(true)
     } catch (error: any) {
