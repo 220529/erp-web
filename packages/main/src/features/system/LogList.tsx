@@ -71,7 +71,7 @@ export default function LogList() {
 
   async function handleViewDetail(record: Log) {
     try {
-      const detail = await getLog(record.id) as Log
+      const detail = (await getLog(record.id)) as unknown as Log
       setCurrentLog(detail)
       setDetailOpen(true)
     } catch (error: any) {
