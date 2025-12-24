@@ -18,9 +18,6 @@ import {
   Tooltip,
   Empty,
   Spin,
-  Checkbox,
-  Progress,
-  Alert,
 } from 'antd';
 import {
   PlusOutlined,
@@ -30,12 +27,10 @@ import {
   EyeOutlined,
   DeleteOutlined,
   CloudUploadOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
 } from '@ant-design/icons';
-import { codeflowApi as codeApi } from '@/api'
-import { formatDateTime } from '@/utils/format'
-import styles from './index.module.less'
+import { codeflowApi as codeApi } from '@/api';
+import { formatDateTime } from '@/utils/format';
+import styles from './index.module.less';
 
 const { TextArea } = Input;
 const { Meta } = Card;
@@ -50,14 +45,10 @@ export default function List() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [testModalOpen, setTestModalOpen] = useState(false);
   const [currentFlow, setCurrentFlow] = useState<codeApi.Flow | null>(null);
-  
-  // 发布相关状态
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
-  const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const [publishing, setPublishing] = useState(false);
-  const [publishProgress, setPublishProgress] = useState(0);
-  const [publishResult, setPublishResult] = useState<codeApi.BatchPublishResult | null>(null);
-  
+
+  // 单个发布状态
+  const [publishingKey, setPublishingKey] = useState<string | null>(null);
+
   // 检查是否可以显示发布功能
   const canPublish = codeApi.canShowPublishFeature();
   const prodConfig = codeApi.getProdConfig();
@@ -84,105 +75,54 @@ export default function List() {
     loadFlows();
   }, []);
 
-  // ============================================
-  // 1.5 选择相关操作
-  // ============================================
-  function handleSelectFlow(flowKey: string, checked: boolean) {
-    const newSelected = new Set(selectedKeys);
-    if (checked) {
-      newSelected.add(flowKey);
-    } else {
-      newSelected.delete(flowKey);
-    }
-    setSelectedKeys(newSelected);
-  }
-
-  function handleSelectAll() {
-    const allKeys = new Set(flows.map(f => f.key));
-    setSelectedKeys(allKeys);
-  }
-
-  function handleDeselectAll() {
-    setSelectedKeys(new Set());
-  }
 
   // ============================================
-  // 1.6 发布到生产环境
+  // 1.5 单个发布到生产环境
   // ============================================
-  function openPublishModal() {
-    if (selectedKeys.size === 0) {
-      message.warning('请先选择要发布的流程');
-      return;
-    }
-    setPublishResult(null);
-    setPublishProgress(0);
-    setPublishModalOpen(true);
-  }
-
-  async function handlePublish() {
+  async function handlePublishSingle(flow: codeApi.Flow) {
     if (!prodConfig) {
       message.error('生产环境配置未设置');
       return;
     }
 
-    const selectedFlows = flows.filter(f => selectedKeys.has(f.key));
-    if (selectedFlows.length === 0) {
-      message.warning('请先选择要发布的流程');
-      return;
-    }
+    Modal.confirm({
+      title: '确认发布',
+      content: (
+        <div>
+          <p>确定要将以下流程发布到生产环境吗？</p>
+          <p>
+            <strong>{flow.name}</strong>{' '}
+            <Tag color="blue" style={{ fontSize: 10 }}>
+              {flow.key}
+            </Tag>
+          </p>
+          <p style={{ color: '#ff4d4f', fontSize: 12 }}>
+            发布后将立即在生产环境生效！
+          </p>
+        </div>
+      ),
+      okText: '确认发布',
+      cancelText: '取消',
+      onOk: async () => {
+        setPublishingKey(flow.key);
+        try {
+          // 获取完整的流程信息（包含代码）
+          const fullFlow = await codeApi.getFlow(flow.key);
+          const result = await codeApi.publishFlowToProd(fullFlow, prodConfig);
 
-    // 需要先获取完整的流程代码
-    setPublishing(true);
-    setPublishProgress(0);
-
-    try {
-      // 获取所有选中流程的完整信息（包含代码）
-      const fullFlows: codeApi.Flow[] = [];
-      for (let i = 0; i < selectedFlows.length; i++) {
-        const flow = selectedFlows[i];
-        const fullFlow = await codeApi.getFlow(flow.key);
-        fullFlows.push(fullFlow);
-        setPublishProgress(Math.round(((i + 1) / selectedFlows.length) * 50));
-      }
-
-      // 批量发布
-      const results: codeApi.PublishResult[] = [];
-      for (let i = 0; i < fullFlows.length; i++) {
-        const flow = fullFlows[i];
-        const result = await codeApi.publishFlowToProd(flow, prodConfig);
-        results.push(result);
-        setPublishProgress(50 + Math.round(((i + 1) / fullFlows.length) * 50));
-      }
-
-      const successCount = results.filter(r => r.success).length;
-      const failureCount = results.filter(r => !r.success).length;
-
-      setPublishResult({
-        total: fullFlows.length,
-        successCount,
-        failureCount,
-        results,
-      });
-
-      if (failureCount === 0) {
-        message.success(`成功发布 ${successCount} 个流程`);
-      } else {
-        message.warning(`发布完成：成功 ${successCount} 个，失败 ${failureCount} 个`);
-      }
-
-      // 清空选择
-      setSelectedKeys(new Set());
-      // 刷新列表
-      loadFlows();
-    } catch (error: any) {
-      message.error(error.message || '发布失败');
-    } finally {
-      setPublishing(false);
-    }
-  }
-
-  function getSelectedFlows(): codeApi.Flow[] {
-    return flows.filter(f => selectedKeys.has(f.key));
+          if (result.success) {
+            message.success(`${flow.name} 发布成功`);
+            loadFlows(); // 刷新列表
+          } else {
+            message.error(`发布失败: ${result.message}`);
+          }
+        } catch (error: any) {
+          message.error(error.message || '发布失败');
+        } finally {
+          setPublishingKey(null);
+        }
+      },
+    });
   }
 
   // ============================================
@@ -224,7 +164,7 @@ export default function List() {
       setLoading(true);
       const newFlow = await codeApi.createFlow(values);
       message.success(`流程创建成功！KEY: ${newFlow.key}`);
-      
+
       // 显示创建成功的信息
       Modal.info({
         title: '流程创建成功',
@@ -246,18 +186,25 @@ export default function List() {
                   复制 KEY
                 </Button>
               </div>
-              
+
               <div>
                 <strong>创建时间:</strong> {formatDateTime(newFlow.createdAt)}
               </div>
-              
+
               <div>
                 <strong>更新时间:</strong> {formatDateTime(newFlow.updatedAt)}
               </div>
-              
+
               {newFlow.code && (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 8,
+                    }}
+                  >
                     <strong>代码模板：</strong>
                     <Button
                       size="small"
@@ -271,14 +218,16 @@ export default function List() {
                       复制代码
                     </Button>
                   </div>
-                  <pre style={{ 
-                    background: '#f5f5f5', 
-                    padding: 12, 
-                    borderRadius: 4, 
-                    fontSize: 12,
-                    maxHeight: 400,
-                    overflow: 'auto',
-                  }}>
+                  <pre
+                    style={{
+                      background: '#f5f5f5',
+                      padding: 12,
+                      borderRadius: 4,
+                      fontSize: 12,
+                      maxHeight: 400,
+                      overflow: 'auto',
+                    }}
+                  >
                     {newFlow.code}
                   </pre>
                 </div>
@@ -298,13 +247,13 @@ export default function List() {
     }
   }
 
+
   // ============================================
-  // 3. 编辑流程
+  // 4. 编辑流程
   // ============================================
   async function openEdit(flow: codeApi.Flow) {
     try {
       setLoading(true);
-      // 先获取完整的流程详情（包含代码）
       const fullFlow = await codeApi.getFlow(flow.key);
       setCurrentFlow(fullFlow);
       form.setFieldsValue({
@@ -338,7 +287,7 @@ export default function List() {
   }
 
   // ============================================
-  // 4. 测试执行流程
+  // 5. 测试执行流程
   // ============================================
   function openTest(flow: codeApi.Flow) {
     setCurrentFlow(flow);
@@ -359,23 +308,25 @@ export default function List() {
       }
 
       const result = await codeApi.executeFlow(currentFlow.key, params);
-      
+
       Modal.success({
         title: '执行成功',
         width: 600,
         content: (
-          <pre style={{ 
-            background: '#f5f5f5', 
-            padding: 12, 
-            borderRadius: 4,
-            maxHeight: 400,
-            overflow: 'auto'
-          }}>
+          <pre
+            style={{
+              background: '#f5f5f5',
+              padding: 12,
+              borderRadius: 4,
+              maxHeight: 400,
+              overflow: 'auto',
+            }}
+          >
             {JSON.stringify(result, null, 2)}
           </pre>
         ),
       });
-      
+
       setTestModalOpen(false);
     } catch (error: any) {
       Modal.error({
@@ -388,7 +339,7 @@ export default function List() {
   }
 
   // ============================================
-  // 5. 查看流程详情
+  // 6. 查看流程详情
   // ============================================
   function viewDetail(flow: codeApi.Flow) {
     Modal.info({
@@ -448,7 +399,14 @@ export default function List() {
             </div>
             {flow.code && (
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}
+                >
                   <strong>代码内容:</strong>
                   <Button
                     size="small"
@@ -461,14 +419,16 @@ export default function List() {
                     复制代码
                   </Button>
                 </div>
-                <pre style={{
-                  background: '#f5f5f5',
-                  padding: 12,
-                  borderRadius: 4,
-                  maxHeight: 300,
-                  overflow: 'auto',
-                  fontSize: 12,
-                }}>
+                <pre
+                  style={{
+                    background: '#f5f5f5',
+                    padding: 12,
+                    borderRadius: 4,
+                    maxHeight: 300,
+                    overflow: 'auto',
+                    fontSize: 12,
+                  }}
+                >
                   {flow.code}
                 </pre>
               </div>
@@ -479,67 +439,65 @@ export default function List() {
     });
   }
 
+
   // ============================================
-  // 6. 渲染卡片
+  // 7. 渲染卡片
   // ============================================
   function renderFlowCard(flow: codeApi.Flow) {
-    const isSelected = selectedKeys.has(flow.key);
     const publishStatus = codeApi.getPublishStatus(flow);
     const publishStatusText = codeApi.getPublishStatusText(publishStatus);
+    const isPublishing = publishingKey === flow.key;
 
     return (
       <Col xs={24} sm={12} md={8} lg={6} xl={4} key={flow.id}>
         <Card
-          className={`${styles.flowCard} ${isSelected ? styles.flowCardSelected : ''}`}
+          className={styles.flowCard}
           hoverable
           actions={[
-            <Tooltip title="查看详情">
-              <EyeOutlined
-                key="view"
-                onClick={() => viewDetail(flow)}
-              />
+            <Tooltip title="查看详情" key="view">
+              <EyeOutlined onClick={() => viewDetail(flow)} />
             </Tooltip>,
-            <Tooltip title="编辑">
-              <EditOutlined
-                key="edit"
-                onClick={() => openEdit(flow)}
-              />
+            <Tooltip title="编辑" key="edit">
+              <EditOutlined onClick={() => openEdit(flow)} />
             </Tooltip>,
-            <Tooltip title="执行测试">
-              <PlayCircleOutlined
-                key="test"
-                onClick={() => openTest(flow)}
-              />
+            <Tooltip title="执行测试" key="test">
+              <PlayCircleOutlined onClick={() => openTest(flow)} />
             </Tooltip>,
-            <Tooltip title="删除">
-              <DeleteOutlined
-                key="delete"
-                onClick={() => handleDelete(flow)}
-              />
+            <Tooltip title="删除" key="delete">
+              <DeleteOutlined onClick={() => handleDelete(flow)} />
             </Tooltip>,
           ]}
         >
-          {/* 选择复选框 - 仅在开发环境且可发布时显示 */}
+          {/* 发布按钮 - 右上角，仅开发环境显示 */}
           {canPublish && (
-            <div className={styles.flowCardCheckbox}>
-              <Checkbox
-                checked={isSelected}
-                onChange={(e) => handleSelectFlow(flow.key, e.target.checked)}
-                onClick={(e) => e.stopPropagation()}
-              />
+            <div className={styles.flowCardPublish}>
+              <Tooltip title="发布到生产环境">
+                <Button
+                  type="primary"
+                  size="small"
+                  shape="circle"
+                  icon={<CloudUploadOutlined />}
+                  loading={isPublishing}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePublishSingle(flow);
+                  }}
+                />
+              </Tooltip>
             </div>
           )}
-          
+
           <Meta
             title={
-              <div style={{ fontSize: 14, fontWeight: 'bold' }}>
-                {flow.name}
-              </div>
+              <div style={{ fontSize: 14, fontWeight: 'bold' }}>{flow.name}</div>
             }
             description={
               <Space direction="vertical" size="small" style={{ width: '100%' }}>
                 <div className={styles.flowCardId}>ID: {flow.id}</div>
-                <div className={styles.flowCardKey} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div
+                  className={styles.flowCardKey}
+                  style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+                >
                   <Tag color="blue" style={{ fontSize: 10, margin: 0 }}>
                     {flow.key}
                   </Tag>
@@ -569,10 +527,18 @@ export default function List() {
                   </div>
                 </div>
                 {/* 发布状态显示 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}
+                >
                   <Tag color={publishStatus === 'published' ? 'green' : 'default'}>
                     {publishStatusText}
                   </Tag>
+                  {/* 有本地更新未发布的标识 */}
+                  {codeApi.hasLocalChanges(flow) && (
+                    <Tag color="red" style={{ fontSize: 10, fontWeight: 'bold' }}>
+                      有更新
+                    </Tag>
+                  )}
                   {flow.publishedAt && (
                     <Tooltip title={`发布时间: ${formatDateTime(flow.publishedAt)}`}>
                       <span style={{ fontSize: 11, color: '#999' }}>
@@ -589,8 +555,9 @@ export default function List() {
     );
   }
 
+
   // ============================================
-  // 7. 主渲染
+  // 8. 主渲染
   // ============================================
   return (
     <div className={styles.codeFlowList}>
@@ -600,30 +567,9 @@ export default function List() {
           <span className={styles.icon}>📋</span>
           代码流程列表
         </div>
-        <Space>
-          {/* 发布相关按钮 - 仅在开发环境显示 */}
-          {canPublish && (
-            <>
-              <Button onClick={handleSelectAll}>全选</Button>
-              <Button onClick={handleDeselectAll}>取消全选</Button>
-              <Button
-                type="primary"
-                icon={<CloudUploadOutlined />}
-                onClick={openPublishModal}
-                disabled={selectedKeys.size === 0}
-              >
-                发布到生产 {selectedKeys.size > 0 && `(${selectedKeys.size})`}
-              </Button>
-            </>
-          )}
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={openCreate}
-          >
-            新建代码流程
-          </Button>
-        </Space>
+        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+          新建代码流程
+        </Button>
       </div>
 
       {/* 流程卡片 */}
@@ -631,9 +577,7 @@ export default function List() {
         {flows.length === 0 ? (
           <Empty description="暂无代码流程" style={{ marginTop: 100 }} />
         ) : (
-          <Row gutter={[16, 16]}>
-            {flows.map((flow) => renderFlowCard(flow))}
-          </Row>
+          <Row gutter={[16, 16]}>{flows.map((flow) => renderFlowCard(flow))}</Row>
         )}
       </Spin>
 
@@ -663,21 +607,12 @@ export default function List() {
             <Input placeholder="例如：创建客户" />
           </Form.Item>
 
-          <Form.Item
-            label="流程分类"
-            name="category"
-          >
+          <Form.Item label="流程分类" name="category">
             <Input placeholder="例如：客户管理" />
           </Form.Item>
 
-          <Form.Item
-            label="流程描述"
-            name="description"
-          >
-            <TextArea
-              rows={3}
-              placeholder="简要描述流程功能..."
-            />
+          <Form.Item label="流程描述" name="description">
+            <TextArea rows={3} placeholder="简要描述流程功能..." />
           </Form.Item>
         </Form>
       </Modal>
@@ -713,10 +648,7 @@ export default function List() {
           </Form.Item>
 
           <Form.Item label="代码内容" name="code">
-            <TextArea
-              rows={15}
-              style={{ fontFamily: 'monospace', fontSize: 12 }}
-            />
+            <TextArea rows={15} style={{ fontFamily: 'monospace', fontSize: 12 }} />
           </Form.Item>
         </Form>
       </Modal>
@@ -736,11 +668,7 @@ export default function List() {
           onFinish={handleTest}
           style={{ marginTop: 24 }}
         >
-          <Form.Item
-            label="请求参数（JSON 格式）"
-            name="params"
-            initialValue='{}'
-          >
+          <Form.Item label="请求参数（JSON 格式）" name="params" initialValue="{}">
             <TextArea
               rows={10}
               style={{ fontFamily: 'monospace', fontSize: 12 }}
@@ -749,134 +677,6 @@ export default function List() {
           </Form.Item>
         </Form>
       </Modal>
-
-      {/* 发布确认弹窗 */}
-      <Modal
-        title="发布到生产环境"
-        open={publishModalOpen}
-        onCancel={() => {
-          if (!publishing) {
-            setPublishModalOpen(false);
-            setPublishResult(null);
-          }
-        }}
-        footer={
-          publishResult ? (
-            <Button type="primary" onClick={() => {
-              setPublishModalOpen(false);
-              setPublishResult(null);
-            }}>
-              关闭
-            </Button>
-          ) : (
-            <Space>
-              <Button onClick={() => setPublishModalOpen(false)} disabled={publishing}>
-                取消
-              </Button>
-              <Button
-                type="primary"
-                onClick={handlePublish}
-                loading={publishing}
-                icon={<CloudUploadOutlined />}
-              >
-                确认发布
-              </Button>
-            </Space>
-          )
-        }
-        width={600}
-        closable={!publishing}
-        maskClosable={!publishing}
-      >
-        {!publishResult ? (
-          <div style={{ marginTop: 16 }}>
-            <Alert
-              message="即将发布以下流程到生产环境"
-              description="请确认选中的流程代码已经过测试，发布后将立即在生产环境生效。"
-              type="warning"
-              showIcon
-              style={{ marginBottom: 16 }}
-            />
-            
-            <div style={{ maxHeight: 300, overflow: 'auto' }}>
-              {getSelectedFlows().map(flow => (
-                <div
-                  key={flow.key}
-                  style={{
-                    padding: '8px 12px',
-                    marginBottom: 8,
-                    background: '#f5f5f5',
-                    borderRadius: 4,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 500 }}>{flow.name}</div>
-                    <div style={{ fontSize: 12, color: '#666' }}>
-                      <Tag color="blue" style={{ fontSize: 10 }}>{flow.key}</Tag>
-                      {flow.category && <span style={{ marginLeft: 8 }}>{flow.category}</span>}
-                    </div>
-                  </div>
-                  <Tag color={codeApi.getPublishStatus(flow) === 'published' ? 'green' : 'default'}>
-                    {codeApi.getPublishStatusText(codeApi.getPublishStatus(flow))}
-                  </Tag>
-                </div>
-              ))}
-            </div>
-
-            {publishing && (
-              <div style={{ marginTop: 16 }}>
-                <Progress percent={publishProgress} status="active" />
-                <div style={{ textAlign: 'center', color: '#666', marginTop: 8 }}>
-                  正在发布中，请勿关闭窗口...
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div style={{ marginTop: 16 }}>
-            <Alert
-              message={`发布完成：成功 ${publishResult.successCount} 个，失败 ${publishResult.failureCount} 个`}
-              type={publishResult.failureCount === 0 ? 'success' : 'warning'}
-              showIcon
-              style={{ marginBottom: 16 }}
-            />
-            
-            <div style={{ maxHeight: 300, overflow: 'auto' }}>
-              {publishResult.results.map(result => (
-                <div
-                  key={result.flowKey}
-                  style={{
-                    padding: '8px 12px',
-                    marginBottom: 8,
-                    background: result.success ? '#f6ffed' : '#fff2f0',
-                    borderRadius: 4,
-                    border: `1px solid ${result.success ? '#b7eb8f' : '#ffccc7'}`,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {result.success ? (
-                      <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                    ) : (
-                      <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
-                    )}
-                    <span style={{ fontWeight: 500 }}>{result.flowName}</span>
-                    <Tag color="blue" style={{ fontSize: 10 }}>{result.flowKey}</Tag>
-                  </div>
-                  {result.message && (
-                    <div style={{ fontSize: 12, color: result.success ? '#52c41a' : '#ff4d4f', marginTop: 4, marginLeft: 22 }}>
-                      {result.message}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }
-

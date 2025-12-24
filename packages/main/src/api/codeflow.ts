@@ -175,16 +175,15 @@ export function canShowPublishFeature(): boolean {
 
 /**
  * 更新本地流程的发布状态
- * 发布成功后调用，同步更新本地数据库的 publishedAt
+ * 发布成功后调用，同步更新本地数据库的 publishedAt（不触发 updatedAt 更新）
  */
 export async function updateLocalPublishStatus(
   flowKey: string,
   publishedAt: string
 ): Promise<void> {
   try {
-    await request.put(`/api/code/flows/${flowKey}`, {
+    await request.put(`/api/code/flows/${flowKey}/publish-status`, {
       publishedAt,
-      status: 1,
     })
   } catch (error) {
     // 本地更新失败不影响发布结果，只打印警告
@@ -298,10 +297,22 @@ export async function batchPublishFlows(
  * 获取流程的发布状态
  */
 export function getPublishStatus(flow: Flow): PublishStatus {
-  if (flow.status === 1 && flow.publishedAt) {
+  if (flow.publishedAt) {
     return 'published'
   }
   return 'not_published'
+}
+
+/**
+ * 检查流程是否有本地更新未发布
+ */
+export function hasLocalChanges(flow: Flow): boolean {
+  if (!flow.publishedAt) {
+    return false // 从未发布过，不算"有更新"
+  }
+  const updatedAt = new Date(flow.updatedAt).getTime()
+  const publishedAt = new Date(flow.publishedAt).getTime()
+  return updatedAt > publishedAt
 }
 
 /**
