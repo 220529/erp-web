@@ -47,6 +47,7 @@
   border-radius: 8px;
   .transition(all, 0.3s);
   height: 100%;
+  position: relative;
   
   &:hover {
     transform: translateY(-4px);
@@ -56,6 +57,30 @@
   // 卡片标题
   :global(.ant-card-meta-title) {
     margin-bottom: 8px;
+  }
+}
+
+// 选中状态的卡片
+.flowCardSelected {
+  border: 2px solid @brand-primary;
+  box-shadow: 0 0 8px rgba(24, 144, 255, 0.3);
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+  }
+}
+
+// 卡片复选框
+.flowCardCheckbox {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  
+  :global(.ant-checkbox-wrapper) {
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
   }
 }
 

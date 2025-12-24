@@ -10,6 +10,7 @@ export interface Flow {
   description?: string
   code?: string
   status: number
+  publishedAt?: string
   createdAt: string
   updatedAt: string
 }
@@ -32,4 +33,30 @@ export interface FlowExecuteResult {
   data?: any
   message?: string
 }
+
+// ============================================
+// 发布相关类型
+// ============================================
+
+export interface ProdConfig {
+  apiEndpoint: string
+  accessSecret: string
+}
+
+export interface PublishResult {
+  flowKey: string
+  flowName: string
+  success: boolean
+  message?: string
+  publishedAt?: string
+}
+
+export interface BatchPublishResult {
+  total: number
+  successCount: number
+  failureCount: number
+  results: PublishResult[]
+}
+
+export type PublishStatus = 'not_published' | 'published'
 

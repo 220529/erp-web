@@ -18,6 +18,9 @@ import {
   Tooltip,
   Empty,
   Spin,
+  Checkbox,
+  Progress,
+  Alert,
 } from 'antd';
 import {
   PlusOutlined,
@@ -26,6 +29,9 @@ import {
   CopyOutlined,
   EyeOutlined,
   DeleteOutlined,
+  CloudUploadOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
 } from '@ant-design/icons';
 import { codeflowApi as codeApi } from '@/api'
 import { formatDateTime } from '@/utils/format'
@@ -44,6 +50,17 @@ export default function List() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [testModalOpen, setTestModalOpen] = useState(false);
   const [currentFlow, setCurrentFlow] = useState<codeApi.Flow | null>(null);
+  
+  // 发布相关状态
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishProgress, setPublishProgress] = useState(0);
+  const [publishResult, setPublishResult] = useState<codeApi.BatchPublishResult | null>(null);
+  
+  // 检查是否可以显示发布功能
+  const canPublish = codeApi.canShowPublishFeature();
+  const prodConfig = codeApi.getProdConfig();
 
   const [form] = Form.useForm();
   const [testForm] = Form.useForm();
@@ -66,6 +83,107 @@ export default function List() {
   useEffect(() => {
     loadFlows();
   }, []);
+
+  // ============================================
+  // 1.5 选择相关操作
+  // ============================================
+  function handleSelectFlow(flowKey: string, checked: boolean) {
+    const newSelected = new Set(selectedKeys);
+    if (checked) {
+      newSelected.add(flowKey);
+    } else {
+      newSelected.delete(flowKey);
+    }
+    setSelectedKeys(newSelected);
+  }
+
+  function handleSelectAll() {
+    const allKeys = new Set(flows.map(f => f.key));
+    setSelectedKeys(allKeys);
+  }
+
+  function handleDeselectAll() {
+    setSelectedKeys(new Set());
+  }
+
+  // ============================================
+  // 1.6 发布到生产环境
+  // ============================================
+  function openPublishModal() {
+    if (selectedKeys.size === 0) {
+      message.warning('请先选择要发布的流程');
+      return;
+    }
+    setPublishResult(null);
+    setPublishProgress(0);
+    setPublishModalOpen(true);
+  }
+
+  async function handlePublish() {
+    if (!prodConfig) {
+      message.error('生产环境配置未设置');
+      return;
+    }
+
+    const selectedFlows = flows.filter(f => selectedKeys.has(f.key));
+    if (selectedFlows.length === 0) {
+      message.warning('请先选择要发布的流程');
+      return;
+    }
+
+    // 需要先获取完整的流程代码
+    setPublishing(true);
+    setPublishProgress(0);
+
+    try {
+      // 获取所有选中流程的完整信息（包含代码）
+      const fullFlows: codeApi.Flow[] = [];
+      for (let i = 0; i < selectedFlows.length; i++) {
+        const flow = selectedFlows[i];
+        const fullFlow = await codeApi.getFlow(flow.key);
+        fullFlows.push(fullFlow);
+        setPublishProgress(Math.round(((i + 1) / selectedFlows.length) * 50));
+      }
+
+      // 批量发布
+      const results: codeApi.PublishResult[] = [];
+      for (let i = 0; i < fullFlows.length; i++) {
+        const flow = fullFlows[i];
+        const result = await codeApi.publishFlowToProd(flow, prodConfig);
+        results.push(result);
+        setPublishProgress(50 + Math.round(((i + 1) / fullFlows.length) * 50));
+      }
+
+      const successCount = results.filter(r => r.success).length;
+      const failureCount = results.filter(r => !r.success).length;
+
+      setPublishResult({
+        total: fullFlows.length,
+        successCount,
+        failureCount,
+        results,
+      });
+
+      if (failureCount === 0) {
+        message.success(`成功发布 ${successCount} 个流程`);
+      } else {
+        message.warning(`发布完成：成功 ${successCount} 个，失败 ${failureCount} 个`);
+      }
+
+      // 清空选择
+      setSelectedKeys(new Set());
+      // 刷新列表
+      loadFlows();
+    } catch (error: any) {
+      message.error(error.message || '发布失败');
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  function getSelectedFlows(): codeApi.Flow[] {
+    return flows.filter(f => selectedKeys.has(f.key));
+  }
 
   // ============================================
   // 2. 删除流程
@@ -365,10 +483,14 @@ export default function List() {
   // 6. 渲染卡片
   // ============================================
   function renderFlowCard(flow: codeApi.Flow) {
+    const isSelected = selectedKeys.has(flow.key);
+    const publishStatus = codeApi.getPublishStatus(flow);
+    const publishStatusText = codeApi.getPublishStatusText(publishStatus);
+
     return (
       <Col xs={24} sm={12} md={8} lg={6} xl={4} key={flow.id}>
         <Card
-          className={styles.flowCard}
+          className={`${styles.flowCard} ${isSelected ? styles.flowCardSelected : ''}`}
           hoverable
           actions={[
             <Tooltip title="查看详情">
@@ -397,6 +519,17 @@ export default function List() {
             </Tooltip>,
           ]}
         >
+          {/* 选择复选框 - 仅在开发环境且可发布时显示 */}
+          {canPublish && (
+            <div className={styles.flowCardCheckbox}>
+              <Checkbox
+                checked={isSelected}
+                onChange={(e) => handleSelectFlow(flow.key, e.target.checked)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
+          
           <Meta
             title={
               <div style={{ fontSize: 14, fontWeight: 'bold' }}>
@@ -435,11 +568,19 @@ export default function List() {
                     />
                   </div>
                 </div>
-                {flow.status === 1 ? (
-                  <Tag color="green">发布线上</Tag>
-                ) : (
-                  <Tag color="default">未发布</Tag>
-                )}
+                {/* 发布状态显示 */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Tag color={publishStatus === 'published' ? 'green' : 'default'}>
+                    {publishStatusText}
+                  </Tag>
+                  {flow.publishedAt && (
+                    <Tooltip title={`发布时间: ${formatDateTime(flow.publishedAt)}`}>
+                      <span style={{ fontSize: 11, color: '#999' }}>
+                        {formatDateTime(flow.publishedAt, 'datetime')}
+                      </span>
+                    </Tooltip>
+                  )}
+                </div>
               </Space>
             }
           />
@@ -459,13 +600,30 @@ export default function List() {
           <span className={styles.icon}>📋</span>
           代码流程列表
         </div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={openCreate}
-        >
-          新建代码流程
-        </Button>
+        <Space>
+          {/* 发布相关按钮 - 仅在开发环境显示 */}
+          {canPublish && (
+            <>
+              <Button onClick={handleSelectAll}>全选</Button>
+              <Button onClick={handleDeselectAll}>取消全选</Button>
+              <Button
+                type="primary"
+                icon={<CloudUploadOutlined />}
+                onClick={openPublishModal}
+                disabled={selectedKeys.size === 0}
+              >
+                发布到生产 {selectedKeys.size > 0 && `(${selectedKeys.size})`}
+              </Button>
+            </>
+          )}
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={openCreate}
+          >
+            新建代码流程
+          </Button>
+        </Space>
       </div>
 
       {/* 流程卡片 */}
@@ -590,6 +748,133 @@ export default function List() {
             />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 发布确认弹窗 */}
+      <Modal
+        title="发布到生产环境"
+        open={publishModalOpen}
+        onCancel={() => {
+          if (!publishing) {
+            setPublishModalOpen(false);
+            setPublishResult(null);
+          }
+        }}
+        footer={
+          publishResult ? (
+            <Button type="primary" onClick={() => {
+              setPublishModalOpen(false);
+              setPublishResult(null);
+            }}>
+              关闭
+            </Button>
+          ) : (
+            <Space>
+              <Button onClick={() => setPublishModalOpen(false)} disabled={publishing}>
+                取消
+              </Button>
+              <Button
+                type="primary"
+                onClick={handlePublish}
+                loading={publishing}
+                icon={<CloudUploadOutlined />}
+              >
+                确认发布
+              </Button>
+            </Space>
+          )
+        }
+        width={600}
+        closable={!publishing}
+        maskClosable={!publishing}
+      >
+        {!publishResult ? (
+          <div style={{ marginTop: 16 }}>
+            <Alert
+              message="即将发布以下流程到生产环境"
+              description="请确认选中的流程代码已经过测试，发布后将立即在生产环境生效。"
+              type="warning"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+            
+            <div style={{ maxHeight: 300, overflow: 'auto' }}>
+              {getSelectedFlows().map(flow => (
+                <div
+                  key={flow.key}
+                  style={{
+                    padding: '8px 12px',
+                    marginBottom: 8,
+                    background: '#f5f5f5',
+                    borderRadius: 4,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{flow.name}</div>
+                    <div style={{ fontSize: 12, color: '#666' }}>
+                      <Tag color="blue" style={{ fontSize: 10 }}>{flow.key}</Tag>
+                      {flow.category && <span style={{ marginLeft: 8 }}>{flow.category}</span>}
+                    </div>
+                  </div>
+                  <Tag color={codeApi.getPublishStatus(flow) === 'published' ? 'green' : 'default'}>
+                    {codeApi.getPublishStatusText(codeApi.getPublishStatus(flow))}
+                  </Tag>
+                </div>
+              ))}
+            </div>
+
+            {publishing && (
+              <div style={{ marginTop: 16 }}>
+                <Progress percent={publishProgress} status="active" />
+                <div style={{ textAlign: 'center', color: '#666', marginTop: 8 }}>
+                  正在发布中，请勿关闭窗口...
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ marginTop: 16 }}>
+            <Alert
+              message={`发布完成：成功 ${publishResult.successCount} 个，失败 ${publishResult.failureCount} 个`}
+              type={publishResult.failureCount === 0 ? 'success' : 'warning'}
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+            
+            <div style={{ maxHeight: 300, overflow: 'auto' }}>
+              {publishResult.results.map(result => (
+                <div
+                  key={result.flowKey}
+                  style={{
+                    padding: '8px 12px',
+                    marginBottom: 8,
+                    background: result.success ? '#f6ffed' : '#fff2f0',
+                    borderRadius: 4,
+                    border: `1px solid ${result.success ? '#b7eb8f' : '#ffccc7'}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {result.success ? (
+                      <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                    ) : (
+                      <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                    )}
+                    <span style={{ fontWeight: 500 }}>{result.flowName}</span>
+                    <Tag color="blue" style={{ fontSize: 10 }}>{result.flowKey}</Tag>
+                  </div>
+                  {result.message && (
+                    <div style={{ fontSize: 12, color: result.success ? '#52c41a' : '#ff4d4f', marginTop: 4, marginLeft: 22 }}>
+                      {result.message}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
