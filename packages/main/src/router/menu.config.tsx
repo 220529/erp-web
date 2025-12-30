@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 菜单配置文件
  * 统一管理系统菜单结构
  */
@@ -18,6 +18,7 @@ import {
   KeyOutlined,
   ApartmentOutlined,
   SafetyOutlined,
+  PieChartOutlined,
 } from '@ant-design/icons'
 
 export interface MenuItem {
@@ -67,6 +68,12 @@ export const menuConfig: MenuItem[] = [
     label: '物料管理',
     icon: <DatabaseOutlined />,
     path: '/material',
+  },
+  {
+    key: '/report',
+    label: '报表中心',
+    icon: <PieChartOutlined />,
+    path: '/report',
   },
   {
     key: '/data',
@@ -124,58 +131,6 @@ export const menuConfig: MenuItem[] = [
       },
     ],
   },
-  // 预留其他菜单
-  // {
-  //   key: '/customer',
-  //   label: '客户管理',
-  //   icon: <UserOutlined />,
-  //   path: '/customer',
-  // },
-  // {
-  //   key: '/order',
-  //   label: '订单管理',
-  //   icon: <ShoppingOutlined />,
-  //   path: '/order',
-  // },
-  // {
-  //   key: '/report',
-  //   label: '报表管理',
-  //   icon: <BarChartOutlined />,
-  //   children: [
-  //     {
-  //       key: '/report/sales',
-  //       label: '销售报表',
-  //       path: '/report/sales',
-  //     },
-  //     {
-  //       key: '/report/finance',
-  //       label: '财务报表',
-  //       path: '/report/finance',
-  //     },
-  //   ],
-  // },
-  // {
-  //   key: '/system',
-  //   label: '系统设置',
-  //   icon: <SettingOutlined />,
-  //   children: [
-  //     {
-  //       key: '/system/user',
-  //       label: '用户管理',
-  //       path: '/system/user',
-  //     },
-  //     {
-  //       key: '/system/role',
-  //       label: '角色管理',
-  //       path: '/system/role',
-  //     },
-  //     {
-  //       key: '/system/menu',
-  //       label: '菜单管理',
-  //       path: '/system/menu',
-  //     },
-  //   ],
-  // },
 ]
 
 // ============================================
@@ -222,4 +177,3 @@ export function getAllMenuPaths(menuItems: MenuItem[]): Map<string, string> {
   traverse(menuItems)
   return pathMap
 }
-

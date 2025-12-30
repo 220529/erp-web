@@ -1,5 +1,5 @@
-import { createBrowserRouter } from 'react-router-dom'
-import { MainLayout } from '@/components'
+﻿import { createBrowserRouter } from 'react-router-dom'
+import { MainLayout, MicroApp } from '@/components'
 import AuthGuard from '@/components/AuthGuard'
 import Dashboard from '@/features/dashboard'
 import { CodeFlowList } from '@/features/codeflow'
@@ -15,6 +15,13 @@ import { DictList } from '@/features/dict'
 import { FileList } from '@/features/file'
 import { SchedulerList } from '@/features/scheduler'
 import { Login } from '@/features/auth'
+import { microApps } from '@/config/microApps'
+
+// 动态生成子应用路由
+const microAppRoutes = microApps.map(app => ({
+  path: `${app.basePath}/*`,
+  element: <MicroApp name={app.name} />,
+}))
 
 export const router = createBrowserRouter(
   [
@@ -98,6 +105,8 @@ export const router = createBrowserRouter(
           path: 'profile',
           element: <ProfileIndex />,
         },
+        // 动态加载所有子应用路由
+        ...microAppRoutes,
       ],
     },
   ],
@@ -111,4 +120,3 @@ export const router = createBrowserRouter(
     },
   }
 )
-

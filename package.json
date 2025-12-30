@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "erp-web",
   "version": "1.0.0",
   "private": true,
@@ -7,8 +7,10 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "pnpm --parallel --filter \"./packages/*\" dev",
     "dev:main": "pnpm --filter @erp/main dev",
+    "dev:report": "pnpm --filter @erp/report dev",
     "build": "pnpm --filter \"./packages/*\" build",
     "build:main": "pnpm --filter @erp/main build",
+    "build:report": "pnpm --filter @erp/report build",
     "lint": "pnpm --filter \"./packages/*\" lint",
     "typecheck": "pnpm --filter \"./packages/*\" typecheck"
   },
@@ -29,4 +31,3 @@
     "typescript": "^5.0.0"
   }
 }
-
